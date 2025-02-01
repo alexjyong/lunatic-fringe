@@ -43,7 +43,7 @@ export class PowerupStateManager {
     deactivateAndRemoveAllPowerups() {
         for (let i in this.activeDurationPowerups) {
             if (this.activeDurationPowerups.hasOwnProperty(i)) {
-                this.activeDurationPowerups[i].powerup.deactivate(this.player);
+                this.activeDurationPowerups[i].powerup.deactivate(this.player, false);
                 // The powerup is no longer active, remove it from the active powerups
                 delete this.activeDurationPowerups[i];
             }
@@ -51,7 +51,7 @@ export class PowerupStateManager {
 
         for (let i in this.activeBulletPowerups) {
             if (this.activeBulletPowerups.hasOwnProperty(i)) {
-                this.activeBulletPowerups[i].powerup.deactivate(this.player);
+                this.activeBulletPowerups[i].powerup.deactivate(this.player, false);
                 // The powerup is no longer active, remove it from the active bullet powerups
                 delete this.activeBulletPowerups[i];
             }
@@ -60,7 +60,7 @@ export class PowerupStateManager {
         // Based on gameplay footage you lose any stored powerups you had when you die, see https://www.youtube.com/watch?v=zZglGbYGRtI at 0:14 and 34:22
         for (let i in this.storedPowerups) {
             if (this.storedPowerups.hasOwnProperty(i)) {
-                this.storedPowerups[i].deactivate(this.player);
+                this.storedPowerups[i].deactivate(this.player, false);
                 // The powerup is no longer active, remove it from the stored powerups
                 delete this.storedPowerups[i];
             }
@@ -78,7 +78,7 @@ export class PowerupStateManager {
     updatePowerupState() {
         for (let i in this.activeDurationPowerups) {
             if (this.activeDurationPowerups.hasOwnProperty(i) && this.activeDurationPowerups[i].duration === 0) {
-                this.activeDurationPowerups[i].powerup.deactivate(this.player);
+                this.activeDurationPowerups[i].powerup.deactivate(this.player, true);
                 // The powerup is no longer active, remove it from the active powerups
                 delete this.activeDurationPowerups[i];
             }
@@ -92,7 +92,7 @@ export class PowerupStateManager {
     bulletPowerupShotUsed(bulletPowerupClassName) {
         this.activeBulletPowerups[bulletPowerupClassName].numberOfShots--;
         if (this.activeBulletPowerups[bulletPowerupClassName].numberOfShots <= 0) {
-            this.activeBulletPowerups[bulletPowerupClassName].powerup.deactivate();
+            this.activeBulletPowerups[bulletPowerupClassName].powerup.deactivate(this.player, true);
             delete this.activeBulletPowerups[bulletPowerupClassName];
 
             if (Object.values(this.activeBulletPowerups).length !== 0) {

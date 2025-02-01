@@ -21,7 +21,7 @@ export class PlayerShip extends InteractableGameObject {
     // Use static values here since the 'this' context is not the Player Ship object in the low fuel event listener, so just pull the values off of the player ship class statically.
     static LOW_FUEL_SOUND_PLAY_COUNT_MAX = 1;
     static lowFuelSoundPlayCount = 1;
-    
+
     static MAX_SPEED = 12;
 
     constructor(xLocation, yLocation, velocityX, velocityY) {
@@ -59,7 +59,7 @@ export class PlayerShip extends InteractableGameObject {
         this.isLowFuelHalfLeft = false;
         this.isLowFuelQuarterLeft = false;
         // Setup the repeating of the low fuel sound
-        MediaManager.Audio.LowFuel.addEventListener('ended', function() {
+        MediaManager.Audio.LowFuel.addEventListener('ended', function () {
             if (PlayerShip.lowFuelSoundPlayCount < PlayerShip.LOW_FUEL_SOUND_PLAY_COUNT_MAX) {
                 MediaManager.Audio.LowFuel.play();
                 PlayerShip.lowFuelSoundPlayCount++;
@@ -81,31 +81,31 @@ export class PlayerShip extends InteractableGameObject {
             left: 0,
             right: 0,
             shooting: 0,
-			repair: 0,
-			death: 0,
+            repair: 0,
+            death: 0,
             healFromSparePart: 0,
             takenDamage: 0,
             engineCheck: 0,
             turnJetsCheck: 0
-		}
+        }
 
         this.score = 0;
         this.updateDocumentScore();
         this.powerupStateManager = new PowerupStateManager(this);
         // Possible bullet states
-		this.BULLETS = {
-			SMALL: 1,
-			SPREADSHOT: 2,
-			LARGE: 3
-		};
+        this.BULLETS = {
+            SMALL: 1,
+            SPREADSHOT: 2,
+            LARGE: 3
+        };
         this.bulletState = this.BULLETS.SMALL;
-		this.bulletShootingSpeed = GameConfig.DEFAULT_SHOOTING_SPEED;
+        this.bulletShootingSpeed = GameConfig.DEFAULT_SHOOTING_SPEED;
         this.PROJECTILE_SPEED = 10;
-		this.scoreMultiplier = 1;
-		// The speed you got at when using the turbo thrust powerup
-		this.SPEED_OF_TURBO_THRUST = 2 * PlayerShip.MAX_SPEED;
-		// What to set the speed of the ship to after turbo thrusting so you get a little "drifting" after the boost
-		this.SPEED_AFTER_TURBO_THRUST = 1;
+        this.scoreMultiplier = 1;
+        // The speed you got at when using the turbo thrust powerup
+        this.SPEED_OF_TURBO_THRUST = 2 * PlayerShip.MAX_SPEED;
+        // What to set the speed of the ship to after turbo thrusting so you get a little "drifting" after the boost
+        this.SPEED_AFTER_TURBO_THRUST = 1;
 
         this.turboThrustActive = false;
         this.powerShieldActive = false;
@@ -134,7 +134,7 @@ export class PlayerShip extends InteractableGameObject {
                 this.numFramesSince[i] += 1;
             }
         }
-        
+
         this.powerupStateManager.updateDurations();
 
         if (this.numFramesSince.engineCheck > this.FRAMES_BETWEEN_ENGINE_CHECK) {
@@ -165,7 +165,7 @@ export class PlayerShip extends InteractableGameObject {
             this.numFramesSince.turnJetsCheck = 0;
         }
         let shouldTurnLeft = (this.turnJetsFunctioning && KeyStateManager.isDown(KeyStateManager.LEFT)) || (this.turnJetsMalfunctioningDirection === this.TURN_JET_MALFUNCTIONING_DIRECTIONS.LEFT && !this.turnJetsFunctioning)
-        if (shouldTurnLeft && this.numFramesSince.left >= 3 && !this.isTurboThrusting() ) {
+        if (shouldTurnLeft && this.numFramesSince.left >= 3 && !this.isTurboThrusting()) {
             this.numFramesSince.left = 0;
             this.spriteXOffset -= this.width;
             this.angle -= this.ROTATION_AMOUNT;
@@ -185,7 +185,7 @@ export class PlayerShip extends InteractableGameObject {
         }
 
         if (KeyStateManager.isDown(KeyStateManager.SPACE) && !this.atBase && !this.isTurboThrusting()) {
-            if (this.numFramesSince.shooting >= this.bulletShootingSpeed) { 
+            if (this.numFramesSince.shooting >= this.bulletShootingSpeed) {
                 // Check to see if ship is allowed to fire based on percentage the guns are operating at. Note that this is inside the frame checking logic since
                 // even you are not allowed to fire a bullet due to inoperable guns it should still reset the numFramesSince count
                 let failedToFireBullet = Math.random() < .9 * (100 - this.playerSystemsManager.gunsCondition.operatingPercentage) / 100;
@@ -224,21 +224,21 @@ export class PlayerShip extends InteractableGameObject {
                         this.powerupStateManager.bulletPowerupShotUsed(spreadShotPowerupConstructorName);
                     }
                 }
-            
+
                 this.numFramesSince.shooting = 0;
             }
         }
-        
+
         if (KeyStateManager.isDown(KeyStateManager.V)) {
             this.powerupStateManager.activateStoredPowerup('V')
         }
-        
+
         if (KeyStateManager.isDown(KeyStateManager.B)) {
             this.powerupStateManager.activateStoredPowerup('B')
         }
-        
+
         // Allow a keypress of K to autokill the player. Do not allow this event to be fired more than once per second (60 frames) or when the player is at the base.
-        if(KeyStateManager.isDown(KeyStateManager.K) && this.numFramesSince.death > 60 && !this.atBase) {
+        if (KeyStateManager.isDown(KeyStateManager.K) && this.numFramesSince.death > 60 && !this.atBase) {
             this.die();
         }
     }
@@ -295,18 +295,20 @@ export class PlayerShip extends InteractableGameObject {
         this.playerSystemsManager.saveSystemsOperatingLevels();
     }
 
-    restoreFuelSparePartAndSystemsState() {
+    restoreFuelSparePartAndSystemsState(playSoundsAndDisplayMessages) {
         this.setFuel(this.savedFuel);
         this.setSpareParts(this.savedSpareParts);
         this.playerSystemsManager.restoreSystemsOperatingLevels();
 
-        // The original game has it so that if you are below half fuel and you come out of power shield
-        // the low fuel message is shown and the sound is played. If you have more than half fuel, instead
-        // a message is displayed telling you that you are vulnerable.
-        if (this.fuel <= this.HALF_FUEL_REMAINING) {
-            this.displayLowFuelMessageAndPlaySound();
-        } else {
-            GameServiceManager.displayMessage("VULNERABLE", 60 * 4.5);
+        if (playSoundsAndDisplayMessages) {
+            // The original game has it so that if you are below half fuel and you come out of power shield
+            // the low fuel message is shown and the sound is played. If you have more than half fuel, instead
+            // a message is displayed telling you that you are vulnerable.
+            if (this.fuel <= this.HALF_FUEL_REMAINING) {
+                this.displayLowFuelMessageAndPlaySound();
+            } else {
+                GameServiceManager.displayMessage("VULNERABLE", 60 * 4.5);
+            }
         }
     }
 
@@ -393,11 +395,11 @@ export class PlayerShip extends InteractableGameObject {
             if (!this.isTurboThrusting() || otherObject.layer === Layer.ASTEROID || otherObject.layer === Layer.ENEMY_BASE) {
                 // Hitting other objects (besides asteroids and the enemy base) only changes your direction and speed if you are not turbo thrusting
                 super.handleCollision(otherObject);
-            }	
+            }
             this.playCollisionSound(otherObject);
             if (!this.isInvulnerable()) {
                 this.damageShip(otherObject.damageCausedByCollision);
-            }		
+            }
         } else if (otherObject.layer === Layer.PLAYER_BASE && !this.isTurboThrusting()) {
             // FUTURE TODO: Revisit ship being pulled into base, possible using gameplay footage to make it more accurate
             this.atBase = true;
@@ -407,10 +409,10 @@ export class PlayerShip extends InteractableGameObject {
             let baseY = otherObject.y - this.BASE_DOCKING_OFFSET; // Subtract the docking offset here so that the player ship is centered better on the player base when docked
             // There will be rounding error with the program, so don't check that the 
             // values are equal but rather that they are within this threshold
-            let threshold = .5; 
+            let threshold = .5;
             if (this.velocityX == 0 && this.velocityY == 0 && Math.abs(baseX - this.x) < threshold && Math.abs(baseY - this.y) < threshold) {
                 //The player ship is stopped at the base
-                
+
                 if (this.numFramesSince.repair >= 60 && (!this.playerSystemsManager.isShipAtFullOpeartingCapacity() || this.fuel < this.MAXIMUM_FUEL || this.spareParts < this.MAXIMUM_SPARE_PARTS)) {
                     //Repair ship
                     this.numFramesSince.repair = 0;
@@ -427,7 +429,7 @@ export class PlayerShip extends InteractableGameObject {
                 }
             } else if (!this.isAccelerating && (Math.abs(baseX - this.x) > threshold || Math.abs(baseY - this.y) > threshold)) {
                 // Only pull the ship in if it is not accelerating
-                
+
                 let vectorToBase = new Vector(baseX - this.x, baseY - this.y);
                 let playerShipVelocity = new Vector(this.velocityX, this.velocityY);
                 let velocityChange = playerShipVelocity.add(vectorToBase).scale(0.001);
@@ -436,10 +438,10 @@ export class PlayerShip extends InteractableGameObject {
                     // Change the magnitude to the minimum magnitude
                     velocityChange = velocityChange.scale(minimumVelocityChangeMagnitude / velocityChange.magnitude());
                 }
-                
+
                 //let dampeningFactor = Math.sqrt(playerShipVelocity.Magnitude()/this.MaxSpeed)*0.09+.9;
-                let dampeningFactor = playerShipVelocity.magnitude()/PlayerShip.MAX_SPEED*0.09+.9;
-                
+                let dampeningFactor = playerShipVelocity.magnitude() / PlayerShip.MAX_SPEED * 0.09 + .9;
+
                 let mag = playerShipVelocity.magnitude();
                 if (mag < .5) {
                     dampeningFactor = .90;
@@ -454,7 +456,7 @@ export class PlayerShip extends InteractableGameObject {
                 } else {
                     dampeningFactor = .99;
                 }
-                
+
                 let minimumDampening = .9;
                 if (dampeningFactor < minimumDampening) {
                     dampeningFactor = minimumDampening;
@@ -464,8 +466,8 @@ export class PlayerShip extends InteractableGameObject {
                 this.velocityY += velocityChange.y;
                 this.velocityY *= dampeningFactor;
             } else if (!this.isAccelerating && this.velocityX != 0 && this.velocityY != 0) {
-                this.velocityX = this.velocityX/4;
-                this.velocityY = this.velocityY/4;
+                this.velocityX = this.velocityX / 4;
+                this.velocityY = this.velocityY / 4;
                 if (this.velocityX < 0.000001 && this.velocityY < 0.00001) {
                     this.velocityX = 0;
                     this.velocityY = 0;
@@ -528,7 +530,7 @@ export class PlayerShip extends InteractableGameObject {
                 this.percentVisible = newPercentageVisible;
             }
         }
-        
+
         // update the power up state
         this.powerupStateManager.updatePowerupState();
 
@@ -539,8 +541,8 @@ export class PlayerShip extends InteractableGameObject {
         } else if (this.fuel > this.HALF_FUEL_REMAINING && this.isLowFuelHalfLeft) {
             this.isLowFuelHalfLeft = false;
         }
-        
-        
+
+
         if (this.fuel < this.QUARTER_FUEL_REMAINING && !this.isLowFuelQuarterLeft) {
             this.displayLowFuelMessageAndPlaySound();
             this.isLowFuelQuarterLeft = true;

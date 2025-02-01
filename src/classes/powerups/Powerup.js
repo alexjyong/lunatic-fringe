@@ -27,7 +27,11 @@ export class Powerup extends InteractableGameObject {
         // Do nothing as powerups have no state to update
     }
 
-    activate() {
+    activate(playerShip) {
         this.error("The activate function should be overwritten by concrete subclasses!");
+    }
+
+    deactivate(playerShip, playSoundsAndDisplayMessages) {
+        this.error("The deactivate function should be overwritten by concrete subclasses!");
     }
 }

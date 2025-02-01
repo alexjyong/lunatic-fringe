@@ -18,13 +18,16 @@ export class PowerShieldPowerup extends StoredDurationPowerup {
         playerShip.resetFuelSparePartAndSystemsState();
     }
 
-    deactivate(playerShip) {
-        MediaManager.Audio.SpawnAndUpgradeExpired.play();
+    deactivate(playerShip, playSoundsAndDisplayMessages) {
+        if (playSoundsAndDisplayMessages) {
+            MediaManager.Audio.SpawnAndUpgradeExpired.play();
+        }
+        
         document.getElementById(this.documentElementId).style.visibility = "hidden";
         playerShip.sprite = MediaManager.Sprites.PlayerShip;
         playerShip.powerShieldActive = false;
 
         // Restore all systems, spare parts, and fuel to original levels
-        playerShip.restoreFuelSparePartAndSystemsState();
+        playerShip.restoreFuelSparePartAndSystemsState(playSoundsAndDisplayMessages);
     }
 }

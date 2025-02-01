@@ -12,7 +12,7 @@ export class SpreadShotPowerup extends PlayerProjectilePowerup {
         document.getElementById(this.documentElementId).style.visibility = "visible";
     }
 
-    deactivate(playerShip) {
+    deactivate(playerShip, playSoundsAndDisplayMessages) {
         document.getElementById(this.documentElementId).style.visibility = "hidden";
     }
 }
