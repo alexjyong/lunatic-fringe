@@ -9,7 +9,7 @@ export class LevelManager {
     static LEVEL_COMPLETION_SCORE_BONUS = 100;
     static delayFrameCount = 0;
     static inNextLevelDelay = false;
-    static DELAY_UNTIL_NEXT_LEVEL = 1 * 60;
+    static DELAY_UNTIL_NEXT_LEVEL_IN_SECONDS = 0.5 * 60;
     /* To keep the game from getting too easy/boring at the end of each level there should be a minimum number of enemies present in the world
         that the level manager keeps track of and uses to determine when to start a next level. 
         To start, during level 1 add this many extra enemies to the game. Then, when determing when the next level should occur the spawn stack
