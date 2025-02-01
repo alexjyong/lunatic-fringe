@@ -110,7 +110,7 @@ export class LevelManager {
             // This also helps prevent the enemy death sound and next level sound from overlapping
             if (this.inNextLevelDelay) {
                 this.delayFrameCount += frameCount;
-                if (this.delayFrameCount >= this.DELAY_UNTIL_NEXT_LEVEL) {
+                if (this.delayFrameCount >= this.DELAY_UNTIL_NEXT_LEVEL_IN_SECONDS) {
                     this.activateNextLevel();
                     this.delayFrameCount = 0;
                     this.inNextLevelDelay = false;
