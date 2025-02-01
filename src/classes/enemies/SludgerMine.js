@@ -1,3 +1,4 @@
+import { GameConfig } from "../../config/GameConfig.js";
 import { Vector } from "../../utility/Vector.js";
 import { KillableAiGameObject } from "../KillableAiGameObject.js";
 import { Layer } from "../managers/Layer.js";
@@ -8,7 +9,7 @@ export class SludgerMine extends KillableAiGameObject {
 
     constructor(xLocation, yLocation, velocityX, velocityY, playerShip) {
         // According to gameplay footage killing a SludgerMine was worth 2 points
-        super(xLocation, yLocation, Layer.SLUDGER_MINE, 24, 21, 0, MediaManager.Sprites.SludgerMine, velocityX, velocityY, 11, 4, playerShip, 20, 20, 2);
+        super(xLocation, yLocation, Layer.SLUDGER_MINE, 24, 21, 0, MediaManager.Sprites.SludgerMine, velocityX, velocityY, 11, 4, playerShip, 20, 20, GameConfig.SLUDGERMINE_POINT_VALUE);
 
         this.TURN_ABILITY = 0.09;
         this.ACCELERATION = 0.1;

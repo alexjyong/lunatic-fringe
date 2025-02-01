@@ -1,3 +1,4 @@
+import { GameConfig } from "../../config/GameConfig.js";
 import { KillableAiGameObject } from "../KillableAiGameObject.js";
 import { Layer } from "../managers/Layer.js";
 import { MediaManager } from "../managers/MediaManager.js";
@@ -9,7 +10,7 @@ export class Hammerhead extends KillableAiGameObject {
     hammerheadWeaponReference = undefined;
 
     constructor(xLocation, yLocation, velocityX, velocityY, angle, playerShip) {
-        super(xLocation, yLocation, Layer.HAMMERHEAD, 44, 51, angle, MediaManager.Sprites.Hammerhead, velocityX, velocityY, 14, 10, playerShip, 60, 150, 100);
+        super(xLocation, yLocation, Layer.HAMMERHEAD, 44, 51, angle, MediaManager.Sprites.Hammerhead, velocityX, velocityY, 14, 10, playerShip, 60, 150, GameConfig.HAMMERHEAD_POINT_VALUE);
 
         this.TURN_ABILITY = 0.020;
         this.ACCELERATION = 0.1;

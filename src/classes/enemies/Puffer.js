@@ -1,3 +1,4 @@
+import { GameConfig } from "../../config/GameConfig.js";
 import { KillableAiGameObject } from "../KillableAiGameObject.js";
 import { Layer } from "../managers/Layer.js";
 import { MediaManager } from "../managers/MediaManager.js";
@@ -8,7 +9,7 @@ export class Puffer extends KillableAiGameObject {
     static MAX_SPEED = 1;
     
     constructor(xLocation, yLocation, velocityX, velocityY, angle, playerShip) {
-        super(xLocation, yLocation, Layer.PUFFER, 42, 49, angle, MediaManager.Sprites.Puffer, velocityX, velocityY, 14, 10, playerShip, 60, 200, 40);
+        super(xLocation, yLocation, Layer.PUFFER, 42, 49, angle, MediaManager.Sprites.Puffer, velocityX, velocityY, 14, 10, playerShip, 60, 200, GameConfig.PUFFER_POINT_VALUE);
 
         this.TURN_ABILITY = 0.015;
         this.ACCELERATION = 0.1;

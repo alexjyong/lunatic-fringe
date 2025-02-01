@@ -1,10 +1,11 @@
+import { GameConfig } from "../../config/GameConfig.js";
 import { Layer } from "../managers/Layer.js";
 import { MediaManager } from "../managers/MediaManager.js";
 import { StoredDurationPowerup } from "./StoredDurationPowerup.js";
 
 export class TurboThrustPowerup extends StoredDurationPowerup {
     constructor(xLocation, yLocation) {
-        super(xLocation, yLocation, Layer.STORED_POWERUP, 15, 16, MediaManager.Sprites.TurboThrust, 8, 60 * 2, 'turboThrustAvailable', 'B');
+        super(xLocation, yLocation, Layer.STORED_POWERUP, 15, 16, MediaManager.Sprites.TurboThrust, 8, 60 * GameConfig.TURBO_BOOST_DURATION_IN_SECONDS, 'turboThrustAvailable', 'B');
     }
 
     activate(playerShip) {
