@@ -245,7 +245,6 @@ export class PlayerShip extends InteractableGameObject {
 
     addToScore(amount) {
         this.score += amount * this.scoreMultiplier;
-        console.log('new life?', this.score, this.nextScoreValueForExtraLife)
         if (this.score >= this.nextScoreValueForExtraLife) {
             this.updateLives(1);
             this.nextScoreValueForExtraLife += GameConfig.POINT_INTERVAL_VALUE_FOR_EXTRA_LIFE;
