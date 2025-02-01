@@ -57,4 +57,15 @@ export let GameConfig = {
 
    // The number of points a slicer is worth
    SLICER_POINT_VALUE: 200,
+
+
+   /** ----------------------------- UNCONFIRMED GAME VALUES ----------------------------- **/
+   // Below are game values that need to be confirmed or checked and then adjusted based on their
+   // actual gameplay value. Below are my best estimates for what the values should be, putting
+   // into the config so that it is easy to adjust the values in the future.
+
+   // The length of time a sludger mine will remain alive until it dies on its own.
+   // Based on gameplay footage https://www.youtube.com/watch?v=zZglGbYGRtI at 28:10 the lifetime is at least 20 seconds (can see
+   // sludger mines approaching on the radar during that time). So my best guess at the moment is that the lifetime is 30.
+   SLUDGERMINE_LIFETIME_IN_SECONDS: 30,
 };
