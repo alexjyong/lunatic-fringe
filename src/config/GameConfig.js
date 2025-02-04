@@ -97,4 +97,9 @@ export let GameConfig = {
    // This might not even be a thing the game does, but seems like a good idea to limit enemies at the start
    // and then slowly increase over time
    MAXIMUM_NUMBER_OF_ENEMIES_AT_LEVEL_ONE: 5,
+
+   // The number of powerups that start in the world. I can only guess but based on gameplay footage at least 1 is available
+   // at level one, but at least 3 are available at level 3. With the way I am handling powerups, the world should start with
+   // three as new powerups only spawn when other powerups are taken
+   STARTING_NUMBER_OF_POWERUPS: 3,
 };

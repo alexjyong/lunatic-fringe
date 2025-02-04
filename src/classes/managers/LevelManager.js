@@ -42,6 +42,9 @@ export class LevelManager {
         this.possibleEnemiesToSpawn = [];
         this.possibleEnemiesToSpawnWeights = [];
         this.setLevel(1);
+        for (let i = 0; i < GameConfig.STARTING_NUMBER_OF_POWERUPS; i++) {
+            GameManager.spawnRandomPowerup();
+        }
     }
 
     static setLevel(level) {
@@ -114,11 +117,6 @@ export class LevelManager {
         this.scoreForNextLevel += this.nextScoreLevelIncreaseAmount;
         this.nextScoreLevelIncreaseAmount += GameConfig.SCORE_REQUIREMENT_INCREASE_PER_LEVEL;
         this.maximumEnemiesInTheWorld++;
-
-        // 20% chance to spawn a new powerup
-        if (Math.random() < .75) {
-            GameManager.spawnRandomPowerup();
-        }
     }
 
     static update(frameCount) {
