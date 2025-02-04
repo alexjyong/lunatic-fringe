@@ -58,6 +58,13 @@ export let GameConfig = {
    // The number of points a slicer is worth
    SLICER_POINT_VALUE: 200,
 
+   // The level that each enemy can first start appearing
+   QUADBLASTER_MINIMUM_SPAWN_LEVEL: 1,
+   SLUDGER_MINIMUM_SPAWN_LEVEL: 1,
+   HAMMERHEAD_MINIMUM_SPAWN_LEVEL: 1,
+   PUFFER_MINIMUM_SPAWN_LEVEL: 4,
+   SLICER_MINIMUM_SPAWN_LEVEL: 7,
+
 
    /** ----------------------------- UNCONFIRMED GAME VALUES ----------------------------- **/
    // Below are game values that need to be confirmed or checked and then adjusted based on their
@@ -68,4 +75,26 @@ export let GameConfig = {
    // Based on gameplay footage https://www.youtube.com/watch?v=zZglGbYGRtI at 28:10 the lifetime is at least 20 seconds (can see
    // sludger mines approaching on the radar during that time). So my best guess at the moment is that the lifetime is 30.
    SLUDGERMINE_LIFETIME_IN_SECONDS: 30,
+
+   
+   // Score needed for the level up from level 1 to level 2
+   // This seems to match best with gameplay footage I found but isn't completely confirmed
+   SCORE_NEEDED_FOR_FIRST_LEVEL_UP: 525,
+
+   // How much the number of points needed to get the next level increases per level
+   // This seems to match best with gameplay footage I found but isn't completely confirmed
+   SCORE_REQUIREMENT_INCREASE_PER_LEVEL: 25,
+
+   // The weights for how frequently each enemy spawns compared to the others
+   // I have no idea what these values should be, so I made educated guesses
+   QUADBLASTER_SPAWN_WEIGHT: 4,
+   SLUDGER_SPAWN_WEIGHT: 4,
+   HAMMERHEAD_SPAWN_WEIGHT: 4,
+   PUFFER_SPAWN_WEIGHT: 4,
+   SLICER_SPAWN_WEIGHT: 1,
+
+   // The maximum number of enemies at level 1
+   // This might not even be a thing the game does, but seems like a good idea to limit enemies at the start
+   // and then slowly increase over time
+   MAXIMUM_NUMBER_OF_ENEMIES_AT_LEVEL_ONE: 5,
 };

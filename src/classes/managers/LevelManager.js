@@ -1,3 +1,4 @@
+import { GameConfig } from "../../config/GameConfig.js";
 import { DocumentManager } from "./DocumentManager.js";
 import { GameManager } from "./GameManager.js";
 import { Layer } from "./Layer.js";
@@ -5,8 +6,6 @@ import { MediaManager } from "./MediaManager.js";
 
 export class LevelManager {
     static level;
-    static spawnStack = [];
-    static LEVEL_COMPLETION_SCORE_BONUS = 100;
     static delayFrameCount = 0;
     static inNextLevelDelay = false;
     static DELAY_UNTIL_NEXT_LEVEL_IN_SECONDS = 0.5 * 60;
@@ -17,9 +16,31 @@ export class LevelManager {
         can start spawning before all of the enemies have been destroyed from the world, making it so it is not too easy for the player at the
         end of a level.
     */
-    static MINIMUM_ENEMIES_IN_WORLD = 3;
+
+    // Since changing levels to be based on score instead of enemy based, spawning will happen until the currently level cap is reached.
+    // This cap rises each level.
+    static maximumEnemiesInTheWorld;
+    // The score needed to hit the next level
+    static scoreForNextLevel;
+    // The score additional score required to get to the level after the next level
+    static nextScoreLevelIncreaseAmount;
+    // The player score
+    static score;
+    // The possible enemies that can currently be spawned in, indicated by Layer
+    static possibleEnemiesToSpawn = [];
+    // The weights associated with the possible enemy spawns
+    static possibleEnemiesToSpawnWeights;
+    // The number of enemies currently alive
+    static numberOfEnemiesAlive;
     
     static initializeGame() {
+        this.score = 0;
+        this.maximumEnemiesInTheWorld = GameConfig.MAXIMUM_NUMBER_OF_ENEMIES_AT_LEVEL_ONE;
+        this.scoreForNextLevel = GameConfig.SCORE_NEEDED_FOR_FIRST_LEVEL_UP;
+        this.nextScoreLevelIncreaseAmount = this.scoreForNextLevel + GameConfig.SCORE_REQUIREMENT_INCREASE_PER_LEVEL;
+        this.numberOfEnemiesAlive = 0;
+        this.possibleEnemiesToSpawn = [];
+        this.possibleEnemiesToSpawnWeights = [];
         this.setLevel(1);
     }
 
@@ -27,68 +48,59 @@ export class LevelManager {
         this.level = level;
 
         DocumentManager.updateLevel(this.level);
-        this.addEnemiesToSpawnQueueForCurrentLevel();
-    }
 
-    static addEnemiesToSpawnQueueForCurrentLevel() {
-        let numberOfEnemiesToSpawn = this.level + 4;
-        if (this.level === 1) {
-            numberOfEnemiesToSpawn += this.MINIMUM_ENEMIES_IN_WORLD;
+        if (!this.possibleEnemiesToSpawn.includes(Layer.QUAD_BLASTER) && this.level >= GameConfig.QUADBLASTER_MINIMUM_SPAWN_LEVEL) {
+            this.possibleEnemiesToSpawn.push(Layer.QUAD_BLASTER);
+            this.possibleEnemiesToSpawnWeights.push(GameConfig.QUADBLASTER_SPAWN_WEIGHT);
         }
 
-        for (let i = 0; i < numberOfEnemiesToSpawn; i++) {
-            let random = Math.random();
-            if (this.level < 4) {
-                /*
-                    Odds of spawning:
-                    QuadBlaster: 30%
-                    Sludger: 25%
-                    Puffer: 20%
-                    Hammerhead: 25%
-                */
-               if (random < .3) {
-                    this.spawnStack.push(Layer.QUAD_BLASTER);
-               } else if (random < .55) {
-                    this.spawnStack.push(Layer.SLUDGER);
-               } else if (random < .75) {
-                   this.spawnStack.push(Layer.PUFFER);
-               } else {
-                    this.spawnStack.push(Layer.HAMMERHEAD);
-               }
-            } else {
-                /*
-                    Once level is 4 or higher, add chance of slicer spawning in
+        if (!this.possibleEnemiesToSpawn.includes(Layer.SLUDGER) && this.level >= GameConfig.SLUDGER_MINIMUM_SPAWN_LEVEL) {
+            this.possibleEnemiesToSpawn.push(Layer.SLUDGER);
+            this.possibleEnemiesToSpawnWeights.push(GameConfig.SLUDGER_SPAWN_WEIGHT);
+        }
 
-                    Odds of spawning:
-                    QuadBlaster: 29%
-                    Sludger: 24%
-                    Puffer: 19%
-                    Hammerhead: 24%
-                    Slicer: 4%
-                */
-                if (random < .29) {
-                    this.spawnStack.push(Layer.QUAD_BLASTER);
-                } else if (random < .53) {
-                    this.spawnStack.push(Layer.SLUDGER);
-                } else if (random < .72) {
-                    this.spawnStack.push(Layer.PUFFER);
-                } else if (random < .96) {
-                    this.spawnStack.push(Layer.HAMMERHEAD);
-                } else {
-                    this.spawnStack.push(Layer.SLICER);
-                }
-            }
+        if (!this.possibleEnemiesToSpawn.includes(Layer.HAMMERHEAD) && this.level >= GameConfig.HAMMERHEAD_MINIMUM_SPAWN_LEVEL) {
+            this.possibleEnemiesToSpawn.push(Layer.HAMMERHEAD);
+            this.possibleEnemiesToSpawnWeights.push(GameConfig.HAMMERHEAD_SPAWN_WEIGHT);
+        }
+
+        if (!this.possibleEnemiesToSpawn.includes(Layer.PUFFER) && this.level >= GameConfig.PUFFER_MINIMUM_SPAWN_LEVEL) {
+            this.possibleEnemiesToSpawn.push(Layer.PUFFER);
+            this.possibleEnemiesToSpawnWeights.push(GameConfig.PUFFER_SPAWN_WEIGHT);
+        }
+
+        if (!this.possibleEnemiesToSpawn.includes(Layer.SLICER) && this.level >= GameConfig.SLICER_MINIMUM_SPAWN_LEVEL) {
+            this.possibleEnemiesToSpawn.push(Layer.SLICER);
+            this.possibleEnemiesToSpawnWeights.push(GameConfig.SLICER_SPAWN_WEIGHT);
+        }
+    }
+
+    static updateScore(scoreChange) {
+        this.score += scoreChange;
+
+        DocumentManager.updateScore(this.score);
+    }
+
+    static getEnemyToSpawn() {
+        this.numberOfEnemiesAlive++;
+
+        let totalWeight = this.possibleEnemiesToSpawnWeights.reduce((sum, weight) => sum + weight, 0);
+        let random = Math.random() * totalWeight;
+        let currentWeight = 0;
+      
+        for (let i = 0; i < this.possibleEnemiesToSpawn.length; i++) {
+          currentWeight += this.possibleEnemiesToSpawnWeights[i];
+          if (random < currentWeight) {
+            return this.possibleEnemiesToSpawn[i];
+          }
         }
     }
 
     static shouldActivateNextLevel() {
-        return this.spawnStack.length === 0 && GameManager.enemiesRemaining() <= this.MINIMUM_ENEMIES_IN_WORLD;
+        return this.score >= this.scoreForNextLevel;
     }
 
     static activateNextLevel() {
-        // Add to player score, before we set the next level
-        GameManager.playerShip.addToScore(this.LEVEL_COMPLETION_SCORE_BONUS * this.level)
-
         // Set the next level
         this.setLevel(this.level + 1);
 
@@ -97,6 +109,11 @@ export class LevelManager {
 
         // Play new level sound
         MediaManager.Audio.NewLevel.play();
+
+        // Update score threadholds for next level
+        this.scoreForNextLevel += this.nextScoreLevelIncreaseAmount;
+        this.nextScoreLevelIncreaseAmount += GameConfig.SCORE_REQUIREMENT_INCREASE_PER_LEVEL;
+        this.maximumEnemiesInTheWorld++;
 
         // 20% chance to spawn a new powerup
         if (Math.random() < .75) {

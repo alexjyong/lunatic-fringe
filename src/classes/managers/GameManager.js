@@ -37,7 +37,6 @@ export class GameManager {
     static isPaused;
     static wasPausedByKey;
     static isRunning;
-    static score;
     static {
         // Need to bind animationLoop function to `this` or else we lose the `this` context when requestAnimationFrame calls the function
         this.animationLoop = this.animationLoop.bind(this);
@@ -62,7 +61,7 @@ export class GameManager {
         // Initialize the game service manager
         GameServiceManager.initialize(this);
 
-        // Initialize the leve manager
+        // Initialize the level manager
         LevelManager.initializeGame();
 
         // Initalize all of the game objects
@@ -475,7 +474,7 @@ export class GameManager {
     static endGame() {
         this.isPaused = true;
         this.isRunning = false;
-        this.displayMessage("You achieved a score of " + this.playerShip.score + " before the fringe took you", 99999999999);
+        this.displayMessage("You achieved a score of " + LevelManager.score + " before the fringe took you", 99999999999);
         ObjectManager.removeObject(this.playerShip)
     }
 

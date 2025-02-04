@@ -1,6 +1,7 @@
 import { Vector } from "../utility/Vector.js";
 import { AiGameObject } from "./AiGameObject.js";
 import { Layer } from "./managers/Layer.js";
+import { LevelManager } from "./managers/LevelManager.js";
 import { MediaManager } from "./managers/MediaManager.js";
 import { ObjectManager } from "./managers/ObjectManager.js";
 
@@ -10,6 +11,7 @@ export class KillableAiGameObject extends AiGameObject {
 
         this.health = health;
         this.pointValue = pointValue;
+        this.deathCountsTowardsEnemiesAlive = true;
     }
 
     playDeathSound() {
@@ -23,6 +25,9 @@ export class KillableAiGameObject extends AiGameObject {
             this.playDeathSound();
         }
         ObjectManager.removeObject(this);
+        if (this.deathCountsTowardsEnemiesAlive) {
+            LevelManager.numberOfEnemiesAlive--;
+        }
     }
 
     handleCollision(otherObject) {

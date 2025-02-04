@@ -21,7 +21,7 @@ export class SludgerMine extends KillableAiGameObject {
         // Start the animation at a random frame
         this.spriteXOffset = (Math.floor(Math.random() * this.NUMBER_OF_ANIMATION_FRAMES)) * this.width;
         this.numberOfFramesBeenAlive = 0;
-        // TODO: Sludermines apparently have a lifetime before they are destroyed! They just kinda die when that lifetime is hit, no points awarded and no sound made (see video 29:36)
+        this.deathCountsTowardsEnemiesAlive = false;
     }
 
     playDeathSound() {

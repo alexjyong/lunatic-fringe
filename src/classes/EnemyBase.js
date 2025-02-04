@@ -49,10 +49,10 @@ export class EnemyBase extends AiGameObject {
     updateState() {
         this.ticksUntilNextEnemySpawn--;
         this.numberOfTicksUntilCanShootAgain--;
-
-        if (this.ticksUntilNextEnemySpawn <= 0 && LevelManager.spawnStack.length !== 0) {
+        
+        if (this.ticksUntilNextEnemySpawn <= 0 && LevelManager.numberOfEnemiesAlive < LevelManager.maximumEnemiesInTheWorld) {
             // Spawn in another enemy
-            let enemyToSpawn = LevelManager.spawnStack.pop();
+            let enemyToSpawn = LevelManager.getEnemyToSpawn();
 
             // Start at a random point somewhere inside of the enemy base. This isn't super important but a slightly random location
             // could allow for some variability in the movement of enemies when they first spawn.

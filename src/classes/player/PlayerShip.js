@@ -7,6 +7,7 @@ import { GameBound } from "../managers/GameBound.js";
 import { GameServiceManager } from "../managers/GameServiceManager.js";
 import { KeyStateManager } from "../managers/KeyManager.js";
 import { Layer } from "../managers/Layer.js";
+import { LevelManager } from "../managers/LevelManager.js";
 import { MediaManager } from "../managers/MediaManager.js";
 import { ObjectManager } from "../managers/ObjectManager.js";
 import { PhotonLargePowerup } from "../powerups/PhotonLargePowerup.js";
@@ -89,8 +90,6 @@ export class PlayerShip extends InteractableGameObject {
             turnJetsCheck: 0
         }
 
-        this.score = 0;
-        this.updateDocumentScore();
         this.powerupStateManager = new PowerupStateManager(this);
         // Possible bullet states
         this.BULLETS = {
@@ -244,17 +243,11 @@ export class PlayerShip extends InteractableGameObject {
     }
 
     addToScore(amount) {
-        this.score += amount * this.scoreMultiplier;
-        if (this.score >= this.nextScoreValueForExtraLife) {
+        LevelManager.updateScore(amount * this.scoreMultiplier)
+        if (LevelManager.score >= this.nextScoreValueForExtraLife) {
             this.updateLives(1);
             this.nextScoreValueForExtraLife += GameConfig.POINT_INTERVAL_VALUE_FOR_EXTRA_LIFE;
         }
-
-        this.updateDocumentScore();
-    }
-
-    updateDocumentScore() {
-        DocumentManager.updateScore(this.score);
     }
 
     isInvulnerable() {
