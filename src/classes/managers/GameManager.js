@@ -72,9 +72,9 @@ export class GameManager {
         this.playerShip.powerupStateManager.obtainPowerup(new TurboThrustPowerup(0, 0));
 
         // Add the background stars
-        for (let i = 0; i < 600; i++) {
-            let x = Math.random() * (GameBound.RIGHT - GameBound.LEFT + 1) + GameBound.LEFT;
-            let y = Math.random() * (GameBound.BOTTOM - GameBound.TOP + 1) + GameBound.TOP;
+        for (let i = 0; i < 1000; i++) {
+            let x = RandomUtil.randomNumber(GameBound.LEFT, GameBound.RIGHT);
+            let y = RandomUtil.randomNumber(GameBound.TOP, GameBound.BOTTOM);
             ObjectManager.addObject(new Star(x, y), false)
         }
 
@@ -83,11 +83,15 @@ export class GameManager {
         ObjectManager.addObject(new PlayerBase(playerBaseLocation.x, playerBaseLocation.y));
 
         // Add the enemy base
-        // Since the player base is centered based on the starting canvas size (so that it is centered on the screen), base enemy base location on player base location and game bounds so that the two bases are always the same distance from each other
-        // Since the GameBoundSize is half of the width and height of the game bounds, subtract that from both coordinates so the enemy base is halfway across the world in both directions (and subtract it since player position is guaranteed to be positive
-        // so subtracting the GameBoundSize should make the coordinates of the enemy base still be within the GameBounds values).
-        let enemyBaseLocation = playerBaseLocation.subtract(new Vector(GameBoundSize, GameBoundSize));
+        // Slightly randomize the location of the Enemy base compared to the player base so that it is not always in the same place but also cannot be right next to the player base (looks like the original game might have done something like this)
+        const enemyBaseOffsetFromPlayerBase = new Vector(
+            GameBoundSize + GameConfig.ENEMY_BASE_SPAWN_VARIATION_PERCENTAGE * RandomUtil.randomNumber(-GameBoundSize, GameBoundSize),
+            GameBoundSize + GameConfig.ENEMY_BASE_SPAWN_VARIATION_PERCENTAGE * RandomUtil.randomNumber(-GameBoundSize, GameBoundSize)
+        );
+        const enemyBaseLocation = playerBaseLocation.add(enemyBaseOffsetFromPlayerBase)
+        this.checkBounds(enemyBaseLocation);
         ObjectManager.addObject(new EnemyBase(enemyBaseLocation.x, enemyBaseLocation.y, this.playerShip));
+        console.log(`Enemy Base created at (${enemyBaseLocation.x}, ${enemyBaseLocation.y})`);
 
         // Add asteroids to the game
         for (let i = 0; i < 6; i++) {

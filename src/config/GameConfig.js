@@ -64,6 +64,9 @@ export let GameConfig = {
    HAMMERHEAD_MINIMUM_SPAWN_LEVEL: 1,
    PUFFER_MINIMUM_SPAWN_LEVEL: 4,
    SLICER_MINIMUM_SPAWN_LEVEL: 7,
+   
+   // Based on pixel measurements from gameplay the original game area was roughly 6000x6000
+   HALF_OF_WORLD_SIZE: 3000,
 
 
    /** ----------------------------- UNCONFIRMED GAME VALUES ----------------------------- **/
@@ -102,4 +105,12 @@ export let GameConfig = {
    // at level one, but at least 3 are available at level 3. With the way I am handling powerups, the world should start with
    // three as new powerups only spawn when other powerups are taken
    STARTING_NUMBER_OF_POWERUPS: 3,
+
+   // What percentage to vary the normal spawning location of the enemy base. Should be between 0 and 1.
+   // When 0, the enemy base always spawns in the same spot, exactly half of the world size away in both directions.
+   // When 0.50, the enemy base can spawn with a variation of up 50% of the GameBounds away from the normal spawn point
+   // When 1, the enemy base can spawn with a variation of up to 100% of the GameBounds away from the normal spawn point, which effectively
+   // means it could spawn anywhere in the world, including next to the player base.
+   // Using 0.40 seems to be a good middle ground that can't spawn too close to player base but also isn't always in a predictable spot.
+   ENEMY_BASE_SPAWN_VARIATION_PERCENTAGE: 0.40,
 };
