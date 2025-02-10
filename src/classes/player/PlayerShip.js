@@ -246,6 +246,7 @@ export class PlayerShip extends InteractableGameObject {
         LevelManager.updateScore(amount * this.scoreMultiplier)
         if (LevelManager.score >= this.nextScoreValueForExtraLife) {
             this.updateLives(1);
+            MediaManager.Audio.NewLevel.play();
             this.nextScoreValueForExtraLife += GameConfig.POINT_INTERVAL_VALUE_FOR_EXTRA_LIFE;
         }
     }
