@@ -94,13 +94,13 @@ export class GameManager {
         console.log(`Enemy Base created at (${enemyBaseLocation.x}, ${enemyBaseLocation.y})`);
 
         // Add asteroids to the game
-        for (let i = 0; i < 6; i++) {
+        for (let i = 0; i < 14; i++) {
             let randomPosition = this.getRandomStartingPosition();
             let randomVelocity = this.getRandomStartingVelocity(2);
             ObjectManager.addObject(new Pebbles(randomPosition.x, randomPosition.y, randomVelocity.x, randomVelocity.y));
         }
 
-        for (let i = 0; i < 3; i += 1) {
+        for (let i = 0; i < 8; i += 1) {
             let randomPosition = this.getRandomStartingPosition();
             let randomVelocity = this.getRandomStartingVelocity(3);
             ObjectManager.addObject(new Rocko(randomPosition.x, randomPosition.y, randomVelocity.x, randomVelocity.y));
