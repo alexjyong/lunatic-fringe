@@ -68,6 +68,9 @@ export let GameConfig = {
    // Based on pixel measurements from gameplay the original game area was roughly 6000x6000
    HALF_OF_WORLD_SIZE: 3000,
 
+   // The number of seconds between death and respawn for the player
+   RESPAWN_DELAY_IN_SECONDS: 2.75,
+
 
    /** ----------------------------- UNCONFIRMED GAME VALUES ----------------------------- **/
    // Below are game values that need to be confirmed or checked and then adjusted based on their

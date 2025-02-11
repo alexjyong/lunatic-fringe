@@ -238,6 +238,13 @@ export class GameManager {
                 if (CollisionManager.doObjectLayersCollide(collidablesSnapshot[i], collidablesSnapshot[j]) && (Math.pow((collidablesSnapshot[j].getCollisionCenterX() - collidablesSnapshot[i].getCollisionCenterX()), 2) + Math.pow((collidablesSnapshot[j].getCollisionCenterY() - collidablesSnapshot[i].getCollisionCenterY()), 2)
                     <=
                     Math.pow((collidablesSnapshot[i].collisionRadius + collidablesSnapshot[j].collisionRadius), 2))) {
+
+                    if ((collidablesSnapshot[i] instanceof PlayerShip && collidablesSnapshot[i].isDead) || (collidablesSnapshot[j] instanceof PlayerShip && collidablesSnapshot[j].isDead)) {
+                        // Ignore collisions with the player if the player is dead
+                        // Necessary because we do not want to remove the player from the game, enemies still act like player is in the space where they died
+                        continue;
+                    }
+
                     // This stores the velocity of the first object before handling the collision of the first object with the second object (which changes the velocity of the first object).
                     // It then stores the new velocity of the first object, sets the first object back to the old velocity and then handles collision of the second object with the first object
                     // (that way the second object reacts based on the first objects original velocity). After that it sets the velocity of the first object back to the new velocity.
