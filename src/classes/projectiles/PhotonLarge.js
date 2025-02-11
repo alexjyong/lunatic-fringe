@@ -5,7 +5,7 @@ import { PlayerProjectile } from "./PlayerProjectile.js";
 
 export class PhotonLarge extends PlayerProjectile {
     constructor(xLocation, yLocation, velocityX, velocityY) {
-        super(xLocation, yLocation, 15, 16, 0, MediaManager.Sprites.PhotonLarge, velocityX, velocityY, 8, 0, 50, 120);
+        super(xLocation, yLocation, 15, 16, 0, MediaManager.Sprites.PhotonLarge, velocityX, velocityY, 8, 0, 50, Infinity);
     }
 
     playCollisionSound() {
@@ -23,7 +23,8 @@ export class PhotonLarge extends PlayerProjectile {
             this.playCollisionSound();
         }
 
-        if (otherObject.layer !== Layer.SLUDGER_MINE) {
+        // The large photon kills everything it touches and continues barreling through, EXCEPT asteroids, the enemy base, and enemy base photons
+        if (otherObject.layer === Layer.ASTEROID || otherObject.layer === Layer.ENEMY_BASE || otherObject.layer === Layer.ENEMY_BASE_PHOTON) {
             // Only remove object if not hitting a sludger mine, since the large photons barrel through sludger mines
             ObjectManager.removeObject(this);
         }
