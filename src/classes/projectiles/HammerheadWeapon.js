@@ -2,6 +2,7 @@ import { Layer } from "../managers/Layer.js";
 import { MediaManager } from "../managers/MediaManager.js";
 import { ObjectManager } from "../managers/ObjectManager.js";
 import { EnemyProjectile } from "./EnemyProjectile.js";
+import { PhotonLarge } from "./PhotonLarge.js";
 
 export class HammerheadWeapon extends EnemyProjectile {
     constructor(xLocation, yLocation, velocityX, velocityY) {
@@ -75,10 +76,9 @@ export class HammerheadWeapon extends EnemyProjectile {
     handleCollision(otherObject) {
         // We only want to play a sound when the player is hit, so don't handle playing sound here, have player handle it.
         // Hammerhead weapons "barrel through" Sludger Mines, so don't die when this are hit
-        // Hammerhead weapon is also not stopped by player projectiles
-        // Hammerhead weapon is also invincible while attached to the hammerhead
+        // Hammerhead weapon is also not stopped by player projectiles except for the large photon
         this.log("Projectile " + this.getClassName() + " hit " + otherObject.getClassName());
-        if (!this.isAttachedToHammerhead && otherObject.layer !== Layer.SLUDGER_MINE && otherObject.layer !== Layer.PLAYER_PROJECTILE) {
+        if (otherObject.layer !== Layer.SLUDGER_MINE && (otherObject.layer !== Layer.PLAYER_PROJECTILE || otherObject instanceof PhotonLarge)) {
             ObjectManager.removeObject(this);
         }
     }
