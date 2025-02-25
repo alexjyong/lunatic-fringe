@@ -1,3 +1,4 @@
+import { GameConfig } from "../../config/GameConfig.js";
 import { Layer } from "../managers/Layer.js";
 import { MediaManager } from "../managers/MediaManager.js";
 import { ObjectManager } from "../managers/ObjectManager.js";
@@ -6,7 +7,7 @@ import { PhotonLarge } from "./PhotonLarge.js";
 
 export class HammerheadWeapon extends EnemyProjectile {
     constructor(xLocation, yLocation, velocityX, velocityY) {
-        super(xLocation, yLocation, Layer.HAMMERHEAD_WEAPON, 75, 55, 0, MediaManager.Sprites.HammerheadWeapon, velocityX, velocityY, 10, 0, undefined, 100);
+        super(xLocation, yLocation, Layer.HAMMERHEAD_WEAPON, 75, 55, 0, MediaManager.Sprites.HammerheadWeapon, velocityX, velocityY, 10, 0, undefined, GameConfig.HAMMERHEAD_PROJECTILE_DAMAGE);
 
         this.currentTicksInAnimationFrame = 0;
         this.NUMBER_OF_TICKS_BETWEEN_ANIMATION_FRAMES = 3;

@@ -1,3 +1,4 @@
+import { GameConfig } from "../../config/GameConfig.js";
 import { Layer } from "../managers/Layer.js";
 import { MediaManager } from "../managers/MediaManager.js";
 import { ObjectManager } from "../managers/ObjectManager.js";
@@ -5,7 +6,7 @@ import { PlayerProjectile } from "./PlayerProjectile.js";
 
 export class PhotonLarge extends PlayerProjectile {
     constructor(xLocation, yLocation, velocityX, velocityY) {
-        super(xLocation, yLocation, 15, 16, 0, MediaManager.Sprites.PhotonLarge, velocityX, velocityY, 8, 0, 50, Infinity);
+        super(xLocation, yLocation, 15, 16, 0, MediaManager.Sprites.PhotonLarge, velocityX, velocityY, 8, 0, 50, GameConfig.PLAYER_LARGE_PHOTON_PROJECTILE_DAMAGE);
     }
 
     playCollisionSound() {

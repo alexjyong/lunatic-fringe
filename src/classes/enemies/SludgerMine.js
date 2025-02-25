@@ -8,8 +8,7 @@ export class SludgerMine extends KillableAiGameObject {
     static MAX_SPEED = 4;
 
     constructor(xLocation, yLocation, velocityX, velocityY, playerShip) {
-        // According to gameplay footage killing a SludgerMine was worth 2 points
-        super(xLocation, yLocation, Layer.SLUDGER_MINE, 24, 21, 0, MediaManager.Sprites.SludgerMine, velocityX, velocityY, 11, 4, playerShip, 20, 20, GameConfig.SLUDGERMINE_POINT_VALUE);
+        super(xLocation, yLocation, Layer.SLUDGER_MINE, 24, 21, 0, MediaManager.Sprites.SludgerMine, velocityX, velocityY, 11, 4, playerShip, GameConfig.SLUDGER_MINE_COLLISION_DAMAGE, GameConfig.SLUDGER_MINE_HEALTH, GameConfig.SLUDGER_MINE_POINT_VALUE);
 
         this.TURN_ABILITY = 0.09;
         this.ACCELERATION = 0.1;
@@ -31,7 +30,7 @@ export class SludgerMine extends KillableAiGameObject {
 
     updateState() {
         this.numberOfFramesBeenAlive++;
-        if (this.numberOfFramesBeenAlive >= 60 * GameConfig.SLUDGERMINE_LIFETIME_IN_SECONDS) {
+        if (this.numberOfFramesBeenAlive >= 60 * GameConfig.SLUDGER_MINE_LIFETIME_IN_SECONDS) {
             this.die(false);
         }
 

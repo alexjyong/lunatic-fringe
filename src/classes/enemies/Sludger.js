@@ -11,7 +11,7 @@ export class Sludger extends KillableAiGameObject {
     constructor(xLocation, yLocation, velocityX, velocityY, playerShip) {
         // According to gameplay footage killing a Sludger was worth 50 points
         // Sludger does not change directions, so starting angle can just be zero since it always starts in the same state
-        super(xLocation, yLocation, Layer.SLUDGER, 34, 31, 0, MediaManager.Sprites.Sludger, velocityX, velocityY, 16, 8, playerShip, 40, 40, GameConfig.SLUDGER_POINT_VALUE);
+        super(xLocation, yLocation, Layer.SLUDGER, 34, 31, 0, MediaManager.Sprites.Sludger, velocityX, velocityY, 16, 8, playerShip, GameConfig.SLUDGER_COLLISION_DAMAGE, GameConfig.SLUDGER_HEALTH, GameConfig.SLUDGER_POINT_VALUE);
 
         this.currentTicksInAnimationFrame = 0;
         this.NUMBER_OF_TICKS_BETWEEN_ANIMATION_FRAMES = 7;

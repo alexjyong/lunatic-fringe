@@ -34,7 +34,7 @@ export class PlayerShip extends InteractableGameObject {
         this.imageYOffset = 2;
 
         this.ACCELERATION = 0.1;
-        this.damageCausedByCollision = 40;
+        this.damageCausedByCollision = GameConfig.PLAYER_COLLISION_DAMAGE;
 
         this.MAXIMUM_FUEL = 1500;
         this.fuel = this.MAXIMUM_FUEL;

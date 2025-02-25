@@ -41,7 +41,7 @@ export let GameConfig = {
    POINT_INTERVAL_VALUE_FOR_EXTRA_LIFE: 3000,
 
    // The number of points a sluder mine is worth
-   SLUDGERMINE_POINT_VALUE: 2,
+   SLUDGER_MINE_POINT_VALUE: 2,
 
    // The number of points a sludger is worth
    SLUDGER_POINT_VALUE: 50,
@@ -80,7 +80,7 @@ export let GameConfig = {
    // The length of time a sludger mine will remain alive until it dies on its own.
    // Based on gameplay footage https://www.youtube.com/watch?v=zZglGbYGRtI at 28:10 the lifetime is at least 20 seconds (can see
    // sludger mines approaching on the radar during that time). So my best guess at the moment is that the lifetime is 30.
-   SLUDGERMINE_LIFETIME_IN_SECONDS: 30,
+   SLUDGER_MINE_LIFETIME_IN_SECONDS: 30,
 
    
    // Score needed for the level up from level 1 to level 2
@@ -116,4 +116,32 @@ export let GameConfig = {
    // means it could spawn anywhere in the world, including next to the player base.
    // Using 0.40 seems to be a good middle ground that can't spawn too close to player base but also isn't always in a predictable spot.
    ENEMY_BASE_SPAWN_VARIATION_PERCENTAGE: 0.40,
+
+   // I don't actually have a good way to determine this information, so this is purely based on what I could glean from watching gameplay videos
+   // and then using a baseline of the standard player bullet doing 40 damage and the player have 5-100 health systems giving the player 500 health
+   PLAYER_BASIC_PROJECTILE_DAMAGE: 40,
+   PLAYER_SPREADSHOT_PROJECTILE_DAMAGE: 50, // Barely more powerful, mostly useful for the extra shots.
+   PLAYER_LARGE_PHOTON_PROJECTILE_DAMAGE: Infinity,
+   QUADBLASTER_PROJECTILE_DAMAGE: 50,
+   HAMMERHEAD_PROJECTILE_DAMAGE: 125,
+   PUFFER_PROJECTILE_DAMAGE: 150,
+   ENEMY_BASE_PROJECTILE_DAMAGE: 200,
+
+   PLAYER_COLLISION_DAMAGE: 40,
+   SLUDGER_COLLISION_DAMAGE: 20,
+   SLUDGER_MINE_COLLISION_DAMAGE: 35,
+   QUADBLASTER_COLLISION_DAMAGE: 50,
+   HAMMERHEAD_COLLISION_DAMAGE: 50,
+   PUFFER_COLLISION_DAMAGE: 75,
+   SLICER_COLLISION_DAMAGE: 200,
+   ENEMY_BASE_COLLISION_DAMAGE: 250,
+   PEBBLES_COLLISION_DAMAGE: 80,
+   ROCKO_COLLISION_DAMAGE: 240,
+
+   SLUDGER_MINE_HEALTH: 1,
+   SLUDGER_HEALTH: 80,
+   QUADBLASTER_HEALTH: 80,
+   HAMMERHEAD_HEALTH: 240, // Note that this is likely higher than the original game, but in the original game the hammerhead weapon collision box was much larger and blocked a lot of attacks from hitting the hammerhead itself, so this increase in health compensates for that
+   PUFFER_HEALTH: 280,
+   SLICER_HEALTH: 120
 };

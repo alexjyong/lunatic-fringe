@@ -1,3 +1,4 @@
+import { GameConfig } from "../../config/GameConfig.js";
 import { Layer } from "../managers/Layer.js";
 import { MediaManager } from "../managers/MediaManager.js";
 import { ObjectManager } from "../managers/ObjectManager.js";
@@ -6,7 +7,7 @@ import { PhotonLarge } from "./PhotonLarge.js";
 
 export class EnemyBasePhoton extends EnemyProjectile {
     constructor(xLocation, yLocation, velocityX, velocityY) {
-        super(xLocation, yLocation, Layer.ENEMY_BASE_PHOTON, 17, 15, 0, MediaManager.Sprites.EnemyBasePhoton, velocityX, velocityY, 9, 2, 80, 150);
+        super(xLocation, yLocation, Layer.ENEMY_BASE_PHOTON, 17, 15, 0, MediaManager.Sprites.EnemyBasePhoton, velocityX, velocityY, 9, 2, 80, GameConfig.ENEMY_BASE_PROJECTILE_DAMAGE);
     }
 
     handleCollision(otherObject) {

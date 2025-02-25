@@ -10,7 +10,7 @@ export class Hammerhead extends KillableAiGameObject {
     hammerheadWeaponReference = undefined;
 
     constructor(xLocation, yLocation, velocityX, velocityY, angle, playerShip) {
-        super(xLocation, yLocation, Layer.HAMMERHEAD, 44, 51, angle, MediaManager.Sprites.Hammerhead, velocityX, velocityY, 14, 10, playerShip, 60, 150, GameConfig.HAMMERHEAD_POINT_VALUE);
+        super(xLocation, yLocation, Layer.HAMMERHEAD, 44, 51, angle, MediaManager.Sprites.Hammerhead, velocityX, velocityY, 14, 10, playerShip, GameConfig.HAMMERHEAD_COLLISION_DAMAGE, GameConfig.HAMMERHEAD_HEALTH, GameConfig.HAMMERHEAD_POINT_VALUE);
 
         this.TURN_ABILITY = 0.020;
         this.ACCELERATION = 0.1;
