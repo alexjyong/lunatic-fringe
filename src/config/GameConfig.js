@@ -117,7 +117,7 @@ export let GameConfig = {
    // Using 0.40 seems to be a good middle ground that can't spawn too close to player base but also isn't always in a predictable spot.
    ENEMY_BASE_SPAWN_VARIATION_PERCENTAGE: 0.40,
 
-   // I don't actually have a good way to determine this information, so this is purely based on what I could glean from watching gameplay videos
+   // I don't actually have a good way to determine this damage/health/collision information, so this is purely based on what I could glean from watching gameplay videos
    // and then using a baseline of the standard player bullet doing 40 damage and the player have 5-100 health systems giving the player 500 health
    PLAYER_BASIC_PROJECTILE_DAMAGE: 40,
    PLAYER_SPREADSHOT_PROJECTILE_DAMAGE: 50, // Barely more powerful, mostly useful for the extra shots.
@@ -143,5 +143,9 @@ export let GameConfig = {
    QUADBLASTER_HEALTH: 80,
    HAMMERHEAD_HEALTH: 240, // Note that this is likely higher than the original game, but in the original game the hammerhead weapon collision box was much larger and blocked a lot of attacks from hitting the hammerhead itself, so this increase in health compensates for that
    PUFFER_HEALTH: 280,
-   SLICER_HEALTH: 120
+   SLICER_HEALTH: 120,
+
+   // Might not even be a thing in the original game, but should have it so all tracking enemies don't just go straight to the player if the player is far enough away
+   HAMMERHEAD_TRACKING_DISTANCE: 2000,
+   PUFFER_TRACKING_DISTANCE: 2000,
 };

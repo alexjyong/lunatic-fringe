@@ -62,38 +62,41 @@ export class Hammerhead extends KillableAiGameObject {
     updateState() {
         let angleDiff = this.angleDiffTo(this.playerShipReference);
 
-        // only move the ship angle toward player as fast as the turn ability will allow.
-        if (angleDiff > 0) {
-            if (this.TURN_ABILITY > angleDiff) {
-                // only turn angle difference
-                this.angle += angleDiff;
+        // Only turn towards and start tracking the player if the player is close enough
+        if (this.relativePositionTo(this.playerShipReference).magnitude() < GameConfig.HAMMERHEAD_TRACKING_DISTANCE) {
+            // only move the ship angle toward player as fast as the turn ability will allow.
+            if (angleDiff > 0) {
+                if (this.TURN_ABILITY > angleDiff) {
+                    // only turn angle difference
+                    this.angle += angleDiff;
+                } else {
+                    // turn maximum amount possible
+                    this.angle += this.TURN_ABILITY;
+                }
             } else {
-                // turn maximum amount possible
-                this.angle += this.TURN_ABILITY;
+                // Will handle if angleDiff = 0 since this next statement will be guaranteed to be true so we will add angleDiff to the angle, which would be 0 (meaning the angle would not change)
+                if (-1 * this.TURN_ABILITY < angleDiff) {
+                    // only turn angle difference
+                    // Note that the angle different here is already negative
+                    this.angle += angleDiff;
+                } else {
+                    // turn maximum amount possible
+                    this.angle += -1 * this.TURN_ABILITY;
+                }
             }
-        } else {
-            // Will handle if angleDiff = 0 since this next statement will be guaranteed to be true so we will add angleDiff to the angle, which would be 0 (meaning the angle would not change)
-            if (-1 * this.TURN_ABILITY < angleDiff) {
-                // only turn angle difference
-                // Note that the angle different here is already negative
-                this.angle += angleDiff;
-            } else {
-                // turn maximum amount possible
-                this.angle += -1 * this.TURN_ABILITY;
+
+            // // Keep angle between 0 and 2 * Math.PI
+            if (this.angle > 2 * Math.PI) {
+                this.angle -= 2 * Math.PI;
+            } else if (this.angle < 0) {
+                this.angle += 2 * Math.PI;
             }
-        }
+            if (this.angle > 2 * Math.PI || this.angle < 0) {
+                this.error(`Hammerhead angle ${this.angle} was outside of the expected range`);
+            }
 
-        // // Keep angle between 0 and 2 * Math.PI
-        if (this.angle > 2 * Math.PI) {
-            this.angle -= 2 * Math.PI;
-        } else if (this.angle < 0) {
-            this.angle += 2 * Math.PI;
+            this.setSpriteXOffsetForAngle();
         }
-        if (this.angle > 2 * Math.PI || this.angle < 0) {
-            this.error(`Hammerhead angle ${this.angle} was outside of the expected range`);
-        }
-
-        this.setSpriteXOffsetForAngle();
 
         // The Hammerhead moves so slow that it feels better when it is always calculating acceleration, despite direction
         // This can result in the Hammerhead obriting the player but since it is so slow it only really happens when the player isn't moving

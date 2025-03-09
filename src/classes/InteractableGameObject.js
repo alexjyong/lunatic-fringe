@@ -186,9 +186,29 @@ export class InteractableGameObject extends GameObject {
         this.velocityY = currentVelocity.y;
     }
 
+    /**
+     * Calculates the relative position from this object to another game object. Always finds
+     * the shortest vector and accounts for world wrapping.
+     * 
+     * @param {*} object Other game object to get the relative position to
+     * @returns Vector with x y distance to object
+     */
     relativePositionTo(object) {
+        const fullWorldSize = GameConfig.HALF_OF_WORLD_SIZE * 2;
+
         let x = object.x - this.x;
+        if (x < -GameConfig.HALF_OF_WORLD_SIZE) {
+            x += fullWorldSize;
+        } else if (x > GameConfig.HALF_OF_WORLD_SIZE) {
+            x -= fullWorldSize;
+        }
         let y = object.y - this.y;
+        if (y < -GameConfig.HALF_OF_WORLD_SIZE) {
+            y += fullWorldSize;
+        } else if (y > GameConfig.HALF_OF_WORLD_SIZE) {
+            y -= fullWorldSize;
+        }
+
         return new Vector(x, y);
     }
 
