@@ -192,7 +192,6 @@ export class PlayerShip extends InteractableGameObject {
         }
 
         if (KeyStateManager.isDown(KeyStateManager.SPACE) && !this.atBase && !this.isTurboThrusting()) {
-            console.log('player shooting speed:',this.bulletShootingSpeed)
             if (this.numFramesSince.shooting >= this.bulletShootingSpeed) {
                 // Check to see if ship is allowed to fire based on percentage the guns are operating at. Note that this is inside the frame checking logic since
                 // even you are not allowed to fire a bullet due to inoperable guns it should still reset the numFramesSince count
