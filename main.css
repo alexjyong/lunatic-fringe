@@ -1,3 +1,8 @@
+/*
+*************************************************************** 
+Common to body for every part of the document 
+***************************************************************
+*/
 body {
     margin: 0;
     padding: 0;
@@ -9,7 +14,67 @@ body * {
     box-sizing: border-box;
 }
 
-#game-container {
+/*
+*************************************************************** 
+Info and Plot Screen 
+***************************************************************
+*/
+#info-and-plot-screen {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    background-color: black;
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+}
+
+#info-and-plot-information {
+    width: 595px;
+    height: 390px;
+    display: flex;
+    flex-direction: row;
+}
+
+.info-and-plot-text-header {
+    font-family: digital-dream;
+    font-weight: bold;
+    font-size: 15px;
+    color: #af2bd6;
+    margin-bottom: .25em;
+    letter-spacing: 0.15em;
+}
+
+.info-and-plot-text-body {
+    font-family: sans-serif;
+    font-size: 12px;
+    line-height: 150%;
+}
+
+.info-and-plot-divider {
+    display: flex;
+    flex: 7;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.info-and-plot-text-address {
+    text-indent: 3em;
+}
+
+p {
+    margin: 0px;
+}
+
+/*
+*************************************************************** 
+Game Screen 
+***************************************************************
+*/
+#game-screen {
     display: flex;
     flex-direction: row;
     /* TODO: This never used to be necessary, but now without this scrollbars
@@ -17,6 +82,7 @@ body * {
        hanging off of the page by a pixel or two. Look into this further. */
     overflow: hidden;
 
+    /* TODO: Make main body background black and remove the redundant background color*/
     background-color: black;
 
     height: 100vh;
@@ -29,7 +95,9 @@ body * {
     flex: 1;
 }
 
-#scannerCanvas, #projectilesScannerCanvas, #effectScannerCanvas {
+#scannerCanvas,
+#projectilesScannerCanvas,
+#effectScannerCanvas {
     position: absolute;
     top: 0px;
     left: 0px;
@@ -52,7 +120,10 @@ body * {
     border: 1px solid white;
 }
 
-.info-panel-line, .info-panel-line-dots, .info-panel-line-text, .info-panel-line-lives {
+.info-panel-line,
+.info-panel-line-dots,
+.info-panel-line-text,
+.info-panel-line-lives {
     margin-top: 1px;
     margin-left: 15px;
     margin-right: 15px;
@@ -102,7 +173,11 @@ body * {
     align-items: center;
 }
 
-.blue-dot, .green-dot, .yellow-dot, .red-dot, .grey-dot {
+.blue-dot,
+.green-dot,
+.yellow-dot,
+.red-dot,
+.grey-dot {
     height: 15px;
     width: 15px;
     display: inline-block;
@@ -158,14 +233,192 @@ body {
     font-family: 'EspySansRevivedNineBold', sans-serif;
     font-size: 11px;
     color: #bfbebe;
-  }
+}
 
-  @font-face {
+@font-face {
     font-family: 'EspySansRevivedNineBold';
     src: url('fonts/EspySansRevivedNine-Bold.ttf') format('truetype');
-  }
+}
 
-  @font-face {
+@font-face {
     font-family: 'digital-dream';
     src: url('fonts/digital-dream.regular.ttf') format('truetype');
-  }
+}
+
+/*
+*************************************************************** 
+Bestiary Screen 
+***************************************************************
+*/
+#bestiary-screen {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    background-color: black;
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+}
+
+#bestiary-information {
+    width: 595px;
+    height: 390px;
+    background-color: black;
+    display: flex;
+    flex-direction: column;
+}
+
+.bestiary-header {
+    font-family: digital-dream;
+    font-weight: bold;
+    font-size: 15px;
+    color: #af2bd6;
+    letter-spacing: 0.15em;
+}
+
+.bestiary-information-column {
+    display: flex;
+    flex: 20;
+    flex-direction: column;
+    justify-content:
+        space-between;
+    gap: 0.75em;
+}
+
+.bestiary-image-and-text-container {
+    display: flex;
+    flex: 2;
+    align-items: center;
+}
+
+.bestiary-text-body {
+    font-family: sans-serif;
+    font-size: 10px;
+    line-height: 150%;
+    flex: 5;
+}
+
+.bestiary-image-container {
+    display: flex;
+    align-items: center;
+    flex: 2;
+    gap: 0.5em;
+    justify-content: center;
+}
+
+/*
+*************************************************************** 
+High Score Screen 
+***************************************************************
+*/
+#display-highscores-screen {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    background-color: black;
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+}
+
+#display-highscores-information {
+    width: 595px;
+    height: 390px;
+    background-color: black;
+    display: flex;
+    flex-direction: column;
+}
+
+.highscore-table {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    font-family: digital-dream;
+    font-weight: bold;
+    font-size: 15px;
+    color: #af2bd6;
+    letter-spacing: 0.15em;
+}
+
+.highscore-row {
+    display: flex;
+    flex-direction: row;
+    flex: 2;
+    align-items: center;
+}
+
+.highscore-row-number {
+    flex: 7;
+}
+
+.highscore-row-name {
+    flex: 54;
+}
+
+.highscore-row-score {
+    flex: 15;
+    text-align: right;
+}
+
+.highscore-row-level {
+    flex: 15;
+    text-align: right;
+}
+
+.highscore-keybinding-info-row {
+    display: flex; 
+    flex-direction: row;
+}
+
+.highscore-keybinding-info-row-label {
+    flex: 1;
+}
+
+.highscore-keybinding-info-row-data {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+/*
+*************************************************************** 
+Enter New High Score Screen 
+***************************************************************
+*/
+#enter-new-highscore-screen {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    background-color: black;
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+    font-size: 10px;
+    line-height: 150%;
+    font-weight: bold;
+}
+
+#enter-new-highscore-information {
+    width: 595px;
+    height: 390px;
+    background-color: black;
+    display: flex;
+    flex-direction: column;
+}
+
+#enter-new-highscore-input {
+    font-family: digital-dream;
+    font-weight: bold;
+    font-size: 15px;
+    color: #af2bd6;
+    background: transparent;
+    border: none;
+}
