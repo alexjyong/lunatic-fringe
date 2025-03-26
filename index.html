@@ -27,7 +27,7 @@
 </head>
 
 <body>
-	<div id="info-and-plot-screen" style="display:none;">
+	<div id="info-and-plot-screen">
 		<div id="info-and-plot-information">
 			<div style="flex:47;">
 				<div class="info-and-plot-text-header">Lunatic Plot</div>
@@ -114,7 +114,7 @@
 			</div>
 		</div>
 	</div>
-	<div id="game-screen">
+	<div id="game-screen" style="display:none;">
 		<div id="scanner">
 			<div id="scannerLayers">
 				<canvas class="baseScanner" id="scannerCanvas"></canvas>
@@ -230,26 +230,43 @@
 						</span>
 					</div>
 				</div>
+				<div style="flex: auto; display: flex; justify-content: flex-end; align-items: center; flex-direction: column;">
+					<div class="info-panel-keypress-help-text">
+						<span style="font-size: 1.5em;">•</span>
+						<span>Press Caps Locks to Pause</span>
+						<span style="font-size: 1.5em;">•</span>
+					</div>
+					<div class="info-panel-keypress-help-text">
+						<span style="font-size: 1.5em;">•</span>
+						<span>Hold Ctrl for Scores and Keybinds</span>
+						<span style="font-size: 1.5em;">•</span>
+					</div>
+					<div class="info-panel-keypress-help-text">
+						<span style="font-size: 1.5em;">•</span>
+						<span>Hold Shift for Entity Information</span>
+						<span style="font-size: 1.5em;">•</span>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
 	<div id="enter-new-highscore-screen" style="display:none;">
 		<div id=" enter-new-highscore-information">
-		<div style="display: flex; flex: 1; justify-content: center; align-items: center;">
-			<div
-				style="border-color: #611c20; border-radius: 0.2em; border-width: 0.25em; border-style: solid; padding: 0.2em;">
+			<div style="display: flex; flex: 1; justify-content: center; align-items: center;">
 				<div
-					style="border-color: #1610b3; border-radius: 0.2em; border-width: 0.25em; border-style: solid; padding: 1em;">
-					<div style="display: flex; align-items: center; gap: 0.5em;">
-						<img src="images/StickSoftware.png" height="25" width="15">
-						<div style="color: #1b1271; font-size: 15px;">:</div>
-						<div style="color: #3a8b3d;">High score! Enter your name:</div>
+					style="border-color: #611c20; border-radius: 0.2em; border-width: 0.25em; border-style: solid; padding: 0.2em;">
+					<div
+						style="border-color: #1610b3; border-radius: 0.2em; border-width: 0.25em; border-style: solid; padding: 1em;">
+						<div style="display: flex; align-items: center; gap: 0.5em;">
+							<img src="images/StickSoftware.png" height="25" width="15">
+							<div style="color: #1b1271; font-size: 15px;">:</div>
+							<div style="color: #3a8b3d;">High score! Enter your name:</div>
+						</div>
+						<input id="enter-new-highscore-input" />
 					</div>
-					<input id="enter-new-highscore-input" />
 				</div>
 			</div>
 		</div>
-	</div>
 	</div>
 	<div id="display-highscores-screen" style="display:none;">
 		<div id="display-highscores-information">
@@ -330,63 +347,63 @@
 				</div>
 				<div class="highscore-row" id="highscore-1">
 					<div class="highscore-row-number">1.</div>
-					<div class="highscore-row-name">Framerate</div>
-					<div class="highscore-row-score">5396</div>
-					<div class="highscore-row-level">9</div>
+					<div class="highscore-row-name"></div>
+					<div class="highscore-row-score"></div>
+					<div class="highscore-row-level"></div>
 				</div>
 				<div class="highscore-row" id="highscore-2">
 					<div class="highscore-row-number">2.</div>
-					<div class="highscore-row-name">Framerate</div>
-					<div class="highscore-row-score">5396</div>
-					<div class="highscore-row-level">9</div>
+					<div class="highscore-row-name"></div>
+					<div class="highscore-row-score"></div>
+					<div class="highscore-row-level"></div>
 				</div>
 				<div class="highscore-row" id="highscore-3">
 					<div class="highscore-row-number">3.</div>
-					<div class="highscore-row-name">Framerate</div>
-					<div class="highscore-row-score">5396</div>
-					<div class="highscore-row-level">9</div>
+					<div class="highscore-row-name"></div>
+					<div class="highscore-row-score"></div>
+					<div class="highscore-row-level"></div>
 				</div>
 				<div class="highscore-row" id="highscore-4">
 					<div class="highscore-row-number">4.</div>
-					<div class="highscore-row-name">Framerate</div>
-					<div class="highscore-row-score">5396</div>
-					<div class="highscore-row-level">9</div>
+					<div class="highscore-row-name"></div>
+					<div class="highscore-row-score"></div>
+					<div class="highscore-row-level"></div>
 				</div>
 				<div class="highscore-row" id="highscore-5">
 					<div class="highscore-row-number">5.</div>
-					<div class="highscore-row-name">Framerate</div>
-					<div class="highscore-row-score">5396</div>
-					<div class="highscore-row-level">9</div>
+					<div class="highscore-row-name"></div>
+					<div class="highscore-row-score"></div>
+					<div class="highscore-row-level"></div>
 				</div>
 				<div class="highscore-row" id="highscore-6">
 					<div class="highscore-row-number">6.</div>
-					<div class="highscore-row-name">Framerate</div>
-					<div class="highscore-row-score">5396</div>
-					<div class="highscore-row-level">9</div>
+					<div class="highscore-row-name"></div>
+					<div class="highscore-row-score"></div>
+					<div class="highscore-row-level"></div>
 				</div>
 				<div class="highscore-row" id="highscore-7">
 					<div class="highscore-row-number">7.</div>
-					<div class="highscore-row-name">Framerate</div>
-					<div class="highscore-row-score">5396</div>
-					<div class="highscore-row-level">9</div>
+					<div class="highscore-row-name"></div>
+					<div class="highscore-row-score"></div>
+					<div class="highscore-row-level"></div>
 				</div>
 				<div class="highscore-row" id="highscore-8">
 					<div class="highscore-row-number">8.</div>
-					<div class="highscore-row-name">Framerate</div>
-					<div class="highscore-row-score">5396</div>
-					<div class="highscore-row-level">9</div>
+					<div class="highscore-row-name"></div>
+					<div class="highscore-row-score"></div>
+					<div class="highscore-row-level"></div>
 				</div>
 				<div class="highscore-row" id="highscore-9">
 					<div class="highscore-row-number">9.</div>
-					<div class="highscore-row-name">Framerate</div>
-					<div class="highscore-row-score">5396</div>
-					<div class="highscore-row-level">9</div>
+					<div class="highscore-row-name"></div>
+					<div class="highscore-row-score"></div>
+					<div class="highscore-row-level"></div>
 				</div>
 				<div class="highscore-row" id="highscore-10">
 					<div class="highscore-row-number">10.</div>
-					<div class="highscore-row-name">Framerate</div>
-					<div class="highscore-row-score">5396</div>
-					<div class="highscore-row-level">9</div>
+					<div class="highscore-row-name"></div>
+					<div class="highscore-row-score"></div>
+					<div class="highscore-row-level"></div>
 				</div>
 			</div>
 		</div>
@@ -512,7 +529,7 @@
 		</div>
 	</div>
 	<div id="help-screen" style="display:none;">
-		TODO: Figure out what the Help screen looked like
+		TODO: Figure out what the Help screen looked like, or if the Help screen was just another name for one of the other existing screens
 	</div>
 </body>
 

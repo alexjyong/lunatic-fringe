@@ -5,7 +5,7 @@ import { CollisionManager } from "../managers/CollisionManager.js";
 import { DocumentManager } from "../managers/DocumentManager.js";
 import { GameBound } from "../managers/GameBound.js";
 import { GameServiceManager } from "../managers/GameServiceManager.js";
-import { KeyStateManager } from "../managers/KeyManager.js";
+import { Key, KeyStateManager } from "../managers/KeyManager.js";
 import { Layer } from "../managers/Layer.js";
 import { LevelManager } from "../managers/LevelManager.js";
 import { MediaManager } from "../managers/MediaManager.js";
@@ -150,7 +150,7 @@ export class PlayerShip extends InteractableGameObject {
             this.enginesFunctioning = !failedToUseEngines;
             this.numFramesSince.engineCheck = 0;
         }
-        if (KeyStateManager.isDown(KeyStateManager.UP) && this.fuel > 0 && !this.isTurboThrusting() && this.enginesFunctioning) {
+        if (KeyStateManager.isDown(Key.UP) && this.fuel > 0 && !this.isTurboThrusting() && this.enginesFunctioning) {
             this.isAccelerating = true;
             if (!this.powerShieldActive) {
                 this.updateFuel(-1);
@@ -171,7 +171,7 @@ export class PlayerShip extends InteractableGameObject {
             this.turnJetsFunctioning = !failedToUseTurnJets;
             this.numFramesSince.turnJetsCheck = 0;
         }
-        let shouldTurnLeft = (this.turnJetsFunctioning && KeyStateManager.isDown(KeyStateManager.LEFT)) || (this.turnJetsMalfunctioningDirection === this.TURN_JET_MALFUNCTIONING_DIRECTIONS.LEFT && !this.turnJetsFunctioning)
+        let shouldTurnLeft = (this.turnJetsFunctioning && KeyStateManager.isDown(Key.LEFT)) || (this.turnJetsMalfunctioningDirection === this.TURN_JET_MALFUNCTIONING_DIRECTIONS.LEFT && !this.turnJetsFunctioning)
         if (shouldTurnLeft && this.numFramesSince.left >= 3 && !this.isTurboThrusting()) {
             this.numFramesSince.left = 0;
             this.spriteXOffset -= this.width;
@@ -181,7 +181,7 @@ export class PlayerShip extends InteractableGameObject {
             }
         }
 
-        let shouldTurnRight = (this.turnJetsFunctioning && KeyStateManager.isDown(KeyStateManager.RIGHT)) || (this.turnJetsMalfunctioningDirection === this.TURN_JET_MALFUNCTIONING_DIRECTIONS.RIGHT && !this.turnJetsFunctioning)
+        let shouldTurnRight = (this.turnJetsFunctioning && KeyStateManager.isDown(Key.RIGHT)) || (this.turnJetsMalfunctioningDirection === this.TURN_JET_MALFUNCTIONING_DIRECTIONS.RIGHT && !this.turnJetsFunctioning)
         if (shouldTurnRight && this.numFramesSince.right >= 3 && !this.isTurboThrusting()) {
             this.numFramesSince.right = 0;
             this.spriteXOffset += this.width;
@@ -191,7 +191,7 @@ export class PlayerShip extends InteractableGameObject {
             }
         }
 
-        if (KeyStateManager.isDown(KeyStateManager.SPACE) && !this.atBase && !this.isTurboThrusting()) {
+        if (KeyStateManager.isDown(Key.SPACE) && !this.atBase && !this.isTurboThrusting()) {
             if (this.numFramesSince.shooting >= this.bulletShootingSpeed) {
                 // Check to see if ship is allowed to fire based on percentage the guns are operating at. Note that this is inside the frame checking logic since
                 // even you are not allowed to fire a bullet due to inoperable guns it should still reset the numFramesSince count
@@ -236,16 +236,16 @@ export class PlayerShip extends InteractableGameObject {
             }
         }
 
-        if (KeyStateManager.isDown(KeyStateManager.V)) {
+        if (KeyStateManager.isDown(Key.V)) {
             this.powerupStateManager.activateStoredPowerup('V')
         }
 
-        if (KeyStateManager.isDown(KeyStateManager.B)) {
+        if (KeyStateManager.isDown(Key.B)) {
             this.powerupStateManager.activateStoredPowerup('B')
         }
 
         // Allow a keypress of K to autokill the player. Do not allow this event to be fired more than once per second (60 frames) or when the player is at the base.
-        if (KeyStateManager.isDown(KeyStateManager.K) && this.numFramesSince.respawn > 60 && !this.atBase) {
+        if (KeyStateManager.isDown(Key.K) && this.numFramesSince.respawn > 60 && !this.atBase) {
             this.die();
         }
     }

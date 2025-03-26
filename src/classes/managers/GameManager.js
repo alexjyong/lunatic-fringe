@@ -36,7 +36,7 @@ export class GameManager {
     static playerShip;
     static isPaused;
     static wasPausedByKey;
-    static isRunning;
+    static isRunning = false;
     static {
         // Need to bind animationLoop function to `this` or else we lose the `this` context when requestAnimationFrame calls the function
         this.animationLoop = this.animationLoop.bind(this);
@@ -47,12 +47,25 @@ export class GameManager {
     static MAX_FRAME_SKIP = 10
     static nextGameTick //NOTE: Should be set right before game starts so that it is as recent as possible
 
-    static initializeGame(scannerCanvasContext, scannerCanvasProjectilesContext, scannerCanvasEffectContext, radarCanvasContext) {
-        this.scannerContext = scannerCanvasContext;
-        this.scannerProjectileContext = scannerCanvasProjectilesContext;
-        this.scannerEffectContext = scannerCanvasEffectContext;
+    static isGameRunning() {
+        return this.isRunning;
+    }
 
-        this.radarContext = radarCanvasContext;
+    static setupGame() {
+        console.log('Starting new game of Lunatic Fringe');
+
+        DocumentManager.setScannerAndRadarCanvasSizes();
+
+        const scannerCanvas = document.getElementById('scannerCanvas');
+        const scannerProjectileCanvas = document.getElementById('projectilesScannerCanvas');
+        const effectScannerCanvas = document.getElementById('effectScannerCanvas');
+        const radarCanvas = document.getElementById('radarCanvas');
+
+        this.scannerContext = scannerCanvas.getContext("2d", { willReadFrequently: true });
+        this.scannerProjectileContext = scannerProjectileCanvas.getContext("2d", { willReadFrequently: true });
+        this.scannerEffectContext = effectScannerCanvas.getContext("2d", { willReadFrequently: true });
+
+        this.radarContext = radarCanvas.getContext("2d", { willReadFrequently: true });
 
         this.isPaused = false;
         this.wasPausedByKey = false;
@@ -486,7 +499,7 @@ export class GameManager {
         this.isPaused = true;
         this.isRunning = false;
         this.displayMessage("You achieved a score of " + LevelManager.score + " before the fringe took you", 99999999999);
-        ObjectManager.removeObject(this.playerShip)
+        ObjectManager.removeObject(this.playerShip);
     }
 
     static toggleGamePaused(activatedByKey) {

@@ -49,4 +49,30 @@ export class DocumentManager {
     static updateElementText(elementName, text) {
         document.getElementById(elementName).innerHTML = text;
     }
+
+    static markScreenAsHidden(screenId) {
+        const screen = document.getElementById(screenId);
+
+        screen.style.display = 'none';
+    }
+
+    static markScreenAsShowing(screenId) {
+        const screen = document.getElementById(screenId);
+
+        screen.style.display = 'flex';
+    }
+
+    static setScannerAndRadarCanvasSizes() {
+    let scannerDimensions = DocumentManager.getElementDimensions('scanner');
+    DocumentManager.setElementDimensions('scannerCanvas', scannerDimensions);
+
+    // Another canvas for another layer of the scanner drawing area
+    DocumentManager.setElementDimensions('projectilesScannerCanvas', scannerDimensions);
+
+    // Add hidden canvas for drawing effects on sprites before drawing on the actual scanner canvas
+    DocumentManager.setElementDimensions('effectScannerCanvas', scannerDimensions);
+
+    let radarDimensions = DocumentManager.getElementDimensions('radar');
+    DocumentManager.setElementDimensions('radarCanvas', radarDimensions);
+    }
 }

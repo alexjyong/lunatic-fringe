@@ -118,6 +118,8 @@ Game Screen
 #info-panel {
     flex: 1;
     border: 1px solid white;
+    display: flex;
+    flex-direction: column;
 }
 
 .info-panel-line,
@@ -150,6 +152,12 @@ Game Screen
     justify-content: center;
     margin-top: 15px;
     margin-bottom: 10px;
+}
+
+.info-panel-keypress-help-text {
+    display: flex;
+    align-items: center;
+    gap: 0.2em;
 }
 
 .lives-image {

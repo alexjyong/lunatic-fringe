@@ -1,0 +1,98 @@
+import { DocumentManager } from "./DocumentManager.js";
+import { GameManager } from "./GameManager.js";
+import { Key } from "./KeyManager.js";
+
+// Note: These match the id values in the html file
+const Screen = {
+  INFO_AND_PLOT_SCREEN: 'info-and-plot-screen',
+  GAMEPLAY_SCREEN: 'game-screen',
+  ENTER_HIGHSCORE_SCREEN: 'enter-new-highscore-screen',
+  DISPLAY_HIGHSCORES_SCREEN: 'display-highscores-screen',
+  BESTIARY_SCREEN: 'bestiary-screen',
+  HELP_SCREEN: 'help-screen' // TODO: Determine if this was a separate screen or is just another name for one of the other existing screens
+}
+
+export class ScreenManager {
+  static STARTING_SCREEN = Screen.INFO_AND_PLOT_SCREEN;
+  static currentScreen = this.STARTING_SCREEN;
+
+  static handleKeyDown(key) {
+    switch (this.currentScreen) {
+      case Screen.INFO_AND_PLOT_SCREEN:
+        // Any key press causes switch to gameplay screen
+        this.switchToScreen(Screen.GAMEPLAY_SCREEN);
+        break;
+      case Screen.GAMEPLAY_SCREEN:
+        if (key === Key.CAPSLOCK) {
+          // If caps locks was pressed, handle pausing/unpausing depending on the current state
+          GameManager.toggleGamePaused(true);
+        } else if (key === Key.A) {
+          // If A was pressed, call game manager
+          // to handle advancing the game by one frame (useful for debugging)
+          GameManager.advanceOneFrame();
+        } else if (key === Key.D) {
+          // If D was pressed, toggle debug in the game config
+          // That way it starts whatever way is defined in the config, but can be toggled with a key press.
+          GameManager.toggleDebugMode();
+        } else if (key === Key.S) {
+          // If S was pressed, call game manager to
+          // set the player velocity to 0 to stop the player in place (useful for debugging)
+          GameManager.stopPlayerMovement();
+        } else if (key === Key.CTRL) {
+          GameManager.toggleGamePaused(true);
+          this.switchToScreen(Screen.DISPLAY_HIGHSCORES_SCREEN);
+        } else if (key === Key.SHIFT) {
+          GameManager.toggleGamePaused(true);
+          this.switchToScreen(Screen.BESTIARY_SCREEN);
+        }
+        break;
+      case Screen.ENTER_HIGHSCORE_SCREEN:
+        break;
+      case Screen.DISPLAY_HIGHSCORES_SCREEN:
+        break;
+      case Screen.BESTIARY_SCREEN:
+        break;
+      case Screen.HELP_SCREEN:
+        break;
+      default:
+        throw new Error(`Unknown screen type ${this.currentScreen}`);
+    }
+  }
+
+  static handleKeyUp(key) {
+    switch (this.currentScreen) {
+      case Screen.INFO_AND_PLOT_SCREEN:
+        break;
+      case Screen.GAMEPLAY_SCREEN:
+        break;
+      case Screen.ENTER_HIGHSCORE_SCREEN:
+        break;
+      case Screen.DISPLAY_HIGHSCORES_SCREEN:
+        if (key === Key.CTRL && GameManager.isGameRunning()) {
+          this.switchToScreen(Screen.GAMEPLAY_SCREEN);
+          GameManager.toggleGamePaused(true);
+        }
+        break;
+      case Screen.BESTIARY_SCREEN:
+        if (key === Key.SHIFT && GameManager.isGameRunning()) {
+          this.switchToScreen(Screen.GAMEPLAY_SCREEN);
+          GameManager.toggleGamePaused(true);
+        }
+        break;
+      case Screen.HELP_SCREEN:
+        break;
+      default:
+        throw new Error(`Unknown screen type ${this.currentScreen}`);
+    }
+  }
+
+  static switchToScreen(newScreen) {
+    DocumentManager.markScreenAsHidden(this.currentScreen);
+    DocumentManager.markScreenAsShowing(newScreen);
+    this.currentScreen = newScreen;
+
+    if (newScreen === Screen.GAMEPLAY_SCREEN && !GameManager.isGameRunning()) {
+      GameManager.setupGame();
+    }
+  }
+}
