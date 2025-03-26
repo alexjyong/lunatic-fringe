@@ -6,13 +6,14 @@ Lunatic Fringe is at risk of being lost to time. The original After Dark module 
 This project is an attempt to recreate Lunatic Fringe using web technologies. When finished, the game will be able to be enjoyed by anyone with a modern web browser on any platform and OS of their choosing. 
 
 ## Try it out!
-[Lunatic Fringe](https://schwal10.github.io/lunatic-fringe/)
+[Lunatic Fringe](https://jackinloadup.github.io/lunatic-fringe/)
 
 ## Game history
 Light reading can be found on Wikipedia's [After Dark](https://en.wikipedia.org/wiki/After_Dark_%28software%29#After_Dark_Games_and_onward) page. More information will be filled out as we care more.
 
 ## Code base history
 Original foundation was written by [James Carnley](http://jamescarnley.com). Google Code [Project](https://code.google.com/p/lunatic-fringe/).
+Large contributions by [schwal10](https://github.com/schwal10) 
 
 ## Usage
 NOTE: With the refactor that separated out the code into multiple files, it is no longer possible to just open up index.html in a browser due to being blocked by CORS policy. So until I think of a way to handle this to potentially get around that without requiring that you turn off blocking for CORS violations, the best way to run this locally is to run a local server to host the files. There are multiple ways you could do this, but some of the easiest ways are probably as follows:
