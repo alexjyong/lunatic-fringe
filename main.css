@@ -82,7 +82,6 @@ Game Screen
        hanging off of the page by a pixel or two. Look into this further. */
     overflow: hidden;
 
-    /* TODO: Make main body background black and remove the redundant background color*/
     background-color: black;
 
     height: 100vh;

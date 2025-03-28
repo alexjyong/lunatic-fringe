@@ -36,7 +36,7 @@ export class KeyStateManager {
 
     static onKeyUp(event) {
         if (this.keysPressed[event.keyCode] === true) {
-            // This was the first time the key was pressed
+            // This was the first time the key was un-pressed
             ScreenManager.handleKeyUp(event.keyCode);
         }
 
