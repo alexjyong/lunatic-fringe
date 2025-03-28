@@ -38,7 +38,7 @@ export class GameManager {
     static message;
     static playerShip;
     static isPaused;
-    static wasPausedByKey;
+    static wasPausedByPlayerPressingPauseKey;
     static isRunning = false;
     static {
         // Need to bind animationLoop function to `this` or else we lose the `this` context when requestAnimationFrame calls the function
@@ -80,7 +80,7 @@ export class GameManager {
         this.radarContext = radarCanvas.getContext("2d", { willReadFrequently: true });
 
         this.isPaused = false;
-        this.wasPausedByKey = false;
+        this.wasPausedByPlayerPressingPauseKey = false;
         this.isRunning = true;
 
         // Initialize the game service manager
@@ -208,23 +208,35 @@ export class GameManager {
     }
 
     static handleResize() {
-        let oldCenterX = this.scannerContext.canvas.width / 2;
-        let oldCenterY = this.scannerContext.canvas.height / 2;
+        // Only need to handle a resize if the game is actually currently running
+        if (this.isGameRunning()) {
+            let oldCenterX = this.scannerContext.canvas.width / 2;
+            let oldCenterY = this.scannerContext.canvas.height / 2;
 
-        let scannerDimensions = DocumentManager.getElementDimensions('scanner');
-        this.scannerContext.canvas.width = scannerDimensions.x;
-        this.scannerContext.canvas.height = scannerDimensions.y;
+            let scannerDimensions = DocumentManager.getElementDimensions('scanner');
+            // Scanner dimenions being zero means they are currently hidden from the screen, do not handle resize as current size is 0
+            if (scannerDimensions.x !== 0 && scannerDimensions.y !== 0) {
+                this.scannerContext.canvas.width = scannerDimensions.x;
+                this.scannerContext.canvas.height = scannerDimensions.y;
+    
+                this.scannerProjectileContext.canvas.width = scannerDimensions.x;
+                this.scannerProjectileContext.canvas.height = scannerDimensions.y;
+    
+                this.scannerEffectContext.canvas.width = scannerDimensions.x;
+                this.scannerEffectContext.canvas.height = scannerDimensions.y;
+    
+                let diffX = this.scannerContext.canvas.width / 2 - oldCenterX;
+                let diffY = this.scannerContext.canvas.height / 2 - oldCenterY;
+    
+                for (let i = 0; i < ObjectManager.objects.length; i++) {
+                    ObjectManager.objects[i].x += diffX;
+                    ObjectManager.objects[i].y += diffY;
+                    this.checkBounds(ObjectManager.objects[i]);
+                }
 
-        this.scannerProjectileContext.canvas.width = scannerDimensions.x;
-        this.scannerProjectileContext.canvas.height = scannerDimensions.y;
-
-        let diffX = this.scannerContext.canvas.width / 2 - oldCenterX;
-        let diffY = this.scannerContext.canvas.height / 2 - oldCenterY;
-
-        for (let i = 0; i < ObjectManager.objects.length; i++) {
-            ObjectManager.objects[i].x += diffX;
-            ObjectManager.objects[i].y += diffY;
-            this.checkBounds(ObjectManager.objects[i]);
+                // Redraw the scene
+                GameManager.drawScene();
+            }
         }
     }
 
@@ -538,25 +550,31 @@ export class GameManager {
         });
     }
 
-    static toggleGamePaused(activatedByKey) {
-        if (!this.isPaused) {
-            this.pauseGame(activatedByKey);
+    static toggleGamePaused(pauseTriggeredByPlayerPressingPause) {
+        if (this.isPaused) {
+            // Game is currently paused
+            // If game was not originally paused by player, unpause regardless
+            // OR, if game was originally paused by player, only unpause if this was also caused by player
+            if (!GameManager.wasPausedByPlayerPressingPauseKey || pauseTriggeredByPlayerPressingPause) {
+                this.resumeGame();
+            }
         } else {
-            this.resumeGame();
+            // Game is currently active
+            this.pauseGame(pauseTriggeredByPlayerPressingPause);
         }
     }
 
-    static pauseGame(activatedByKey = false) {
-        if (activatedByKey) {
-            this.wasPausedByKey = true;
+    static pauseGame(pauseTriggeredByPlayerPressingPause = false) {
+        if (pauseTriggeredByPlayerPressingPause) {
+            this.wasPausedByPlayerPressingPauseKey = true;
         }
         this.isPaused = true;
-        console.log('Paused game, was activated by key:', activatedByKey);
+        console.log('Paused game, was activated by player pressing pause key:', pauseTriggeredByPlayerPressingPause);
     }
 
     static resumeGame() {
         this.isPaused = false;
-        this.wasPausedByKey = false;
+        this.wasPausedByPlayerPressingPauseKey = false;
         this.gameLoop(true);
         this.animationLoop();
         console.log('Resumed game');
@@ -583,17 +601,21 @@ export class GameManager {
 
         // Even if we process 10 frames, we only want to draw once (no point in drawing older frames)
         if (loops) {
-            // Clear canvases for drawing a new scene
-            this.scannerContext.clearRect(0, 0, this.scannerContext.canvas.width, this.scannerContext.canvas.height);
-            this.scannerProjectileContext.clearRect(0, 0, this.scannerProjectileContext.canvas.width, this.scannerProjectileContext.canvas.height);
-
-            this.drawObjects(Object.values(ObjectManager.nonProjectileObjects), this.scannerContext);
-            this.drawObjects(Object.values(ObjectManager.projectileObjects), this.scannerProjectileContext);
-            this.drawRadar(ObjectManager.collidables, this.radarContext);
+            this.drawScene();
         }
 
         // Update the Level manager to see if we have can advance to the next level
         LevelManager.update(loops);
+    }
+
+    static drawScene() {
+        // Clear canvases for drawing a new scene
+        this.scannerContext.clearRect(0, 0, this.scannerContext.canvas.width, this.scannerContext.canvas.height);
+        this.scannerProjectileContext.clearRect(0, 0, this.scannerProjectileContext.canvas.width, this.scannerProjectileContext.canvas.height);
+
+        this.drawObjects(Object.values(ObjectManager.nonProjectileObjects), this.scannerContext);
+        this.drawObjects(Object.values(ObjectManager.projectileObjects), this.scannerProjectileContext);
+        this.drawRadar(ObjectManager.collidables, this.radarContext);
     }
 
     static animationLoop() {

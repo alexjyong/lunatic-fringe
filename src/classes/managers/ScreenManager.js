@@ -43,10 +43,10 @@ export class ScreenManager {
           // set the player velocity to 0 to stop the player in place (useful for debugging)
           GameManager.stopPlayerMovement();
         } else if (key === Key.CTRL) {
-          GameManager.toggleGamePaused(true);
+          GameManager.toggleGamePaused(false);
           this.switchToScreen(Screen.DISPLAY_HIGHSCORES_SCREEN);
         } else if (key === Key.SHIFT) {
-          GameManager.toggleGamePaused(true);
+          GameManager.toggleGamePaused(false);
           this.switchToScreen(Screen.BESTIARY_SCREEN);
         }
         break;
@@ -85,13 +85,13 @@ export class ScreenManager {
       case Screen.DISPLAY_HIGHSCORES_SCREEN:
         if (key === Key.CTRL && GameManager.isGameRunning()) {
           this.switchToScreen(Screen.GAMEPLAY_SCREEN);
-          GameManager.toggleGamePaused(true);
+          GameManager.toggleGamePaused(false);
         }
         break;
       case Screen.BESTIARY_SCREEN:
         if (key === Key.SHIFT && GameManager.isGameRunning()) {
           this.switchToScreen(Screen.GAMEPLAY_SCREEN);
-          GameManager.toggleGamePaused(true);
+          GameManager.toggleGamePaused(false);
         } else if (key === Key.SHIFT && !GameManager.isGameRunning()) {
           this.switchToScreen(Screen.DISPLAY_HIGHSCORES_SCREEN);
         }
@@ -107,6 +107,15 @@ export class ScreenManager {
     DocumentManager.markScreenAsHidden(this.currentScreen);
     DocumentManager.markScreenAsShowing(newScreen);
     this.currentScreen = newScreen;
+
+    if (newScreen === Screen.GAMEPLAY_SCREEN && !GameManager.isGameRunning()) {
+      GameManager.setupGame();
+    }
+
+    if (newScreen === Screen.GAMEPLAY_SCREEN && GameManager.isGameRunning()) {
+      // Account for any resizing that happened while we were not on the gameplay screen
+      GameManager.handleResize();
+    }
 
     if (newScreen === Screen.GAMEPLAY_SCREEN && !GameManager.isGameRunning()) {
       GameManager.setupGame();

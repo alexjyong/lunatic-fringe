@@ -52,7 +52,7 @@ window.onload = function Initialize() {
             // Only resume the game if the game is currently paused and was not paused by a key press.
             // Do this so that if the player pauses with a key press and then leaves the browser window 
             // the game won't unpause until they explicitly do that key press again.
-            if (GameManager.isPaused && !GameManager.wasPausedByKey) {
+            if (GameManager.isPaused && !GameManager.wasPausedByPlayerPressingPauseKey) {
                 GameManager.resumeGame();
             }
         }
