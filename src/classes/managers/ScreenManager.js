@@ -19,6 +19,9 @@ export class ScreenManager {
   static currentScreen = this.STARTING_SCREEN;
 
   static HIGH_SCORE_INPUT_ID = 'enter-new-highscore-input';
+  static HIGH_SCORE_ENTITY_INFO_TEXT_ID = 'highscore-screen-entity-info-text';
+  static HIGH_SCORE_CURRENT_GAME_INFO_TEXT_ID = 'highscore-screen-current-game-info-text';
+  static BESTIARY_HELP_TEXT_ID = 'bestiary-screen-help-text';
 
   static handleKeyDown(key) {
     switch (this.currentScreen) {
@@ -78,7 +81,7 @@ export class ScreenManager {
         const enteredName = DocumentManager.getValueOfInputElement(this.HIGH_SCORE_INPUT_ID);
         if (key === Key.ENTER && enteredName) {
           GameManager.submitScoreForUsername(enteredName).then((scoreInformation) => {
-            this.switchToScreen(Screen.DISPLAY_HIGHSCORES_SCREEN, {allScores: scoreInformation.allScores, scoreToHighlight: scoreInformation.playerScore});
+            this.switchToScreen(Screen.DISPLAY_HIGHSCORES_SCREEN, { allScores: scoreInformation.allScores, scoreToHighlight: scoreInformation.playerScore });
           });
         }
         break;
@@ -108,25 +111,40 @@ export class ScreenManager {
     DocumentManager.markScreenAsShowing(newScreen);
     this.currentScreen = newScreen;
 
-    if (newScreen === Screen.GAMEPLAY_SCREEN && !GameManager.isGameRunning()) {
-      GameManager.setupGame();
-    }
+    if (newScreen === Screen.GAMEPLAY_SCREEN) {
+      if (GameManager.isGameRunning()) {
+        // Account for any resizing that happened while we were not on the gameplay screen
+        GameManager.handleResize();
+      } else {
+        GameManager.setupGame();
+      }
 
-    if (newScreen === Screen.GAMEPLAY_SCREEN && GameManager.isGameRunning()) {
-      // Account for any resizing that happened while we were not on the gameplay screen
-      GameManager.handleResize();
-    }
-
-    if (newScreen === Screen.GAMEPLAY_SCREEN && !GameManager.isGameRunning()) {
-      GameManager.setupGame();
     }
 
     if (newScreen === Screen.ENTER_HIGHSCORE_SCREEN) {
       DocumentManager.focusOnElement(this.HIGH_SCORE_INPUT_ID);
     }
 
-    if (newScreen === Screen.DISPLAY_HIGHSCORES_SCREEN && otherOptions) {
-      DocumentManager.updateHighScoresElements(otherOptions.allScores, otherOptions.scoreToHighlight);
+    if (newScreen === Screen.DISPLAY_HIGHSCORES_SCREEN) {
+      if (otherOptions) {
+        DocumentManager.updateHighScoresElements(otherOptions.allScores, otherOptions.scoreToHighlight);
+      }
+      
+      if (!GameManager.isGameRunning()) {
+        DocumentManager.updateElementTextByElementName(this.HIGH_SCORE_ENTITY_INFO_TEXT_ID, 'Hold Shift for Entity information.');
+        DocumentManager.updateElementTextByElementName(this.HIGH_SCORE_CURRENT_GAME_INFO_TEXT_ID, 'Press Ctrl to re-enter the Fringe...');
+      } else {
+        DocumentManager.updateElementTextByElementName(this.HIGH_SCORE_ENTITY_INFO_TEXT_ID, '');
+        DocumentManager.updateElementTextByElementName(this.HIGH_SCORE_CURRENT_GAME_INFO_TEXT_ID, '');
+      }
+    }
+
+    if (newScreen === Screen.BESTIARY_SCREEN) {
+      if (!GameManager.isGameRunning()) {
+        DocumentManager.updateElementTextByElementName(this.BESTIARY_HELP_TEXT_ID, 'To see help and information press the Command key...');
+      } else {
+        DocumentManager.updateElementTextByElementName(this.BESTIARY_HELP_TEXT_ID, '');
+      }
     }
   }
 }
