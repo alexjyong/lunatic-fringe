@@ -1,47 +1,45 @@
-import { GameConfig } from "../../config/GameConfig.js";
-import { GameServiceManager } from "./GameServiceManager.js";
+import { ScreenManager } from "./ScreenManager.js";
+
+export const Key = {
+    ENTER: 13,
+    SHIFT: 16,
+    CTRL: 17,
+    SPACE: 32,
+    LEFT: 37,
+    UP: 38,
+    RIGHT: 39,
+    DOWN: 40,
+	CAPSLOCK: 20,
+    A: 65,
+    D: 68,
+	V: 86,
+	B: 66,
+	K: 75,
+    S: 83
+}
 
 export class KeyStateManager {
     static keysPressed = {};
-    static SPACE = 32;
-    static LEFT = 37;
-    static UP = 38;
-    static RIGHT = 39;
-    static DOWN = 40;
-	static CAPSLOCK = 20;
-    static A = 65;
-    static D = 68;
-	static V = 86;
-	static B = 66;
-	static K = 75;
-    static S = 83;
 
     static isDown(keyCode) {
         return this.keysPressed[keyCode];
     }
 
     static onKeyDown(event) {
-        if (event.keyCode === this.CAPSLOCK && this.keysPressed[event.keyCode] !== true) {
-            // If caps locks was pressed (and is not already registered as being down before this), handle pausing/unpausing depending on the current state
-            GameServiceManager.toggleGamePaused(true);
-        } else if (event.keyCode === this.A && this.keysPressed[event.keyCode] !== true) {
-            // If A was pressed (and is not already registered as being down before this), call game manager
-            // to handle advancing the game by one frame (useful for debugging)
-            GameServiceManager.advanceOneFrame();
-        } else if (event.keyCode === this.D && this.keysPressed[event.keyCode] !== true) {
-            // If D was pressed (and is not already registered as being down before this), toggle debug in the game config
-            // That way it starts whatever way is defined in the config, but can be toggled with a key press.
-            GameServiceManager.toggleDebugMode();
-        } else if (event.keyCode === this.S && this.keysPressed[event.keyCode] !== true) {
-            // If S was pressed (and is not already registered as being down before this), call game manager to
-            // set the player velocity to 0 to stop the player in place (useful for debugging)
-            GameServiceManager.stopPlayerMovement();
+        if (this.keysPressed[event.keyCode] !== true) {
+            // This was the first time the key was pressed
+            ScreenManager.handleKeyDown(event.keyCode);
         }
         
         this.keysPressed[event.keyCode] = true;
     }
 
     static onKeyUp(event) {
+        if (this.keysPressed[event.keyCode] === true) {
+            // This was the first time the key was un-pressed
+            ScreenManager.handleKeyUp(event.keyCode);
+        }
+
         delete this.keysPressed[event.keyCode];
     }
 }

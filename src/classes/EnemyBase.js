@@ -18,7 +18,7 @@ export class EnemyBase extends AiGameObject {
         /**
          * The width, height, angle (which doesn't really apply), sprite, velocityX, velocityY, collisionRadius, and mass are always the same for an EnemyBase.
          */
-        super(xLocation, yLocation, Layer.ENEMY_BASE, 62, 60, 0, MediaManager.Sprites.EnemyBase, 0, 0, 28, 100000000, playerShip, 200);
+        super(xLocation, yLocation, Layer.ENEMY_BASE, 62, 60, 0, MediaManager.Sprites.EnemyBase, 0, 0, 28, 100000000, playerShip, GameConfig.ENEMY_BASE_COLLISION_DAMAGE);
 
         this.ticksUntilNextEnemySpawn = 60 * 5;
         this.numberOfTicksUntilCanShootAgain = 0;
@@ -49,10 +49,10 @@ export class EnemyBase extends AiGameObject {
     updateState() {
         this.ticksUntilNextEnemySpawn--;
         this.numberOfTicksUntilCanShootAgain--;
-
-        if (this.ticksUntilNextEnemySpawn <= 0 && LevelManager.spawnStack.length !== 0) {
+        
+        if (this.ticksUntilNextEnemySpawn <= 0 && LevelManager.numberOfEnemiesAlive < LevelManager.maximumEnemiesInTheWorld) {
             // Spawn in another enemy
-            let enemyToSpawn = LevelManager.spawnStack.pop();
+            let enemyToSpawn = LevelManager.getEnemyToSpawn();
 
             // Start at a random point somewhere inside of the enemy base. This isn't super important but a slightly random location
             // could allow for some variability in the movement of enemies when they first spawn.

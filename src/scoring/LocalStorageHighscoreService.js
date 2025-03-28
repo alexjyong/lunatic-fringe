@@ -1,4 +1,4 @@
-import { Score } from './Score';
+import { Score } from './Score.js';
 
 /**
  * Tracks highscores in local storage in the client's browser. Because

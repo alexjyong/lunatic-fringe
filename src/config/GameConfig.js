@@ -16,6 +16,12 @@ export let GameConfig = {
    // Duration that the Power Shield (invulnerability) powerup lasts
    POWER_SHIELD_DURATION_IN_SECONDS: 40,
 
+   // Duration that the Turbo Boost powerup lasts
+   TURBO_BOOST_DURATION_IN_SECONDS: 1.5,
+
+   // Duration that the Double Points powerup lasts
+   DOUBLE_POINTS_DURATION_IN_SECONDS: 35,
+
    // Number of shots the Large Photon power up lasts
    LARGE_PHOTON_NUMBER_OF_SHOTS: 10,
 
@@ -28,5 +34,118 @@ export let GameConfig = {
 
    // How long it takes the player to fade in after spawning/respawning. Ideally this should be the same length as 
    // LENGTH_OF_INVULNERABILITY_AFTER_SPAWN_IN_SECONDS to prevent confusion.
-   LENGTH_OF_FADE_IN_AFTER_SPAWN_IN_SECONDS: 4
+   LENGTH_OF_FADE_IN_AFTER_SPAWN_IN_SECONDS: 4,
+
+   // The point interval where the player will recieve another life. This interval is repeated, for example if the value is 3000
+   // then the player will recieve new lives at 3000 points, 6000 points, 9000 points, and so on. 
+   POINT_INTERVAL_VALUE_FOR_EXTRA_LIFE: 3000,
+
+   // The number of points a sluder mine is worth
+   SLUDGER_MINE_POINT_VALUE: 2,
+
+   // The number of points a sludger is worth
+   SLUDGER_POINT_VALUE: 50,
+
+   // The number of points a quadblaster is worth
+   QUADBLASTER_POINT_VALUE: 50,
+
+   // The number of points a hammerhead is worth
+   HAMMERHEAD_POINT_VALUE: 100,
+
+   // The number of points a puffer is worth
+   PUFFER_POINT_VALUE: 100,
+
+   // The number of points a slicer is worth
+   SLICER_POINT_VALUE: 200,
+
+   // The level that each enemy can first start appearing
+   QUADBLASTER_MINIMUM_SPAWN_LEVEL: 1,
+   SLUDGER_MINIMUM_SPAWN_LEVEL: 1,
+   HAMMERHEAD_MINIMUM_SPAWN_LEVEL: 1,
+   PUFFER_MINIMUM_SPAWN_LEVEL: 4,
+   SLICER_MINIMUM_SPAWN_LEVEL: 7,
+   
+   // Based on pixel measurements from gameplay the original game area was roughly 6000x6000
+   HALF_OF_WORLD_SIZE: 3000,
+
+   // The number of seconds between death and respawn for the player
+   RESPAWN_DELAY_IN_SECONDS: 2.75,
+
+
+   /** ----------------------------- UNCONFIRMED GAME VALUES ----------------------------- **/
+   // Below are game values that need to be confirmed or checked and then adjusted based on their
+   // actual gameplay value. Below are my best estimates for what the values should be, putting
+   // into the config so that it is easy to adjust the values in the future.
+
+   // The length of time a sludger mine will remain alive until it dies on its own.
+   // Based on gameplay footage https://www.youtube.com/watch?v=zZglGbYGRtI at 28:10 the lifetime is at least 20 seconds (can see
+   // sludger mines approaching on the radar during that time). So my best guess at the moment is that the lifetime is 30.
+   SLUDGER_MINE_LIFETIME_IN_SECONDS: 30,
+
+   
+   // Score needed for the level up from level 1 to level 2
+   // This seems to match best with gameplay footage I found but isn't completely confirmed
+   SCORE_NEEDED_FOR_FIRST_LEVEL_UP: 525,
+
+   // How much the number of points needed to get the next level increases per level
+   // This seems to match best with gameplay footage I found but isn't completely confirmed
+   SCORE_REQUIREMENT_INCREASE_PER_LEVEL: 25,
+
+   // The weights for how frequently each enemy spawns compared to the others
+   // I have no idea what these values should be, so I made educated guesses
+   QUADBLASTER_SPAWN_WEIGHT: 4,
+   SLUDGER_SPAWN_WEIGHT: 4,
+   HAMMERHEAD_SPAWN_WEIGHT: 4,
+   PUFFER_SPAWN_WEIGHT: 4,
+   SLICER_SPAWN_WEIGHT: 1,
+
+   // The maximum number of enemies at level 1
+   // This might not even be a thing the game does, but seems like a good idea to limit enemies at the start
+   // and then slowly increase over time
+   MAXIMUM_NUMBER_OF_ENEMIES_AT_LEVEL_ONE: 5,
+
+   // The number of powerups that start in the world. I can only guess but based on gameplay footage at least 1 is available
+   // at level one, but at least 3 are available at level 3. With the way I am handling powerups, the world should start with
+   // three as new powerups only spawn when other powerups are taken
+   STARTING_NUMBER_OF_POWERUPS: 3,
+
+   // What percentage to vary the normal spawning location of the enemy base. Should be between 0 and 1.
+   // When 0, the enemy base always spawns in the same spot, exactly half of the world size away in both directions.
+   // When 0.50, the enemy base can spawn with a variation of up 50% of the GameBounds away from the normal spawn point
+   // When 1, the enemy base can spawn with a variation of up to 100% of the GameBounds away from the normal spawn point, which effectively
+   // means it could spawn anywhere in the world, including next to the player base.
+   // Using 0.40 seems to be a good middle ground that can't spawn too close to player base but also isn't always in a predictable spot.
+   ENEMY_BASE_SPAWN_VARIATION_PERCENTAGE: 0.40,
+
+   // I don't actually have a good way to determine this damage/health/collision information, so this is purely based on what I could glean from watching gameplay videos
+   // and then using a baseline of the standard player bullet doing 40 damage and the player have 5-100 health systems giving the player 500 health
+   PLAYER_BASIC_PROJECTILE_DAMAGE: 40,
+   PLAYER_SPREADSHOT_PROJECTILE_DAMAGE: 50, // Barely more powerful, mostly useful for the extra shots.
+   PLAYER_LARGE_PHOTON_PROJECTILE_DAMAGE: Infinity,
+   QUADBLASTER_PROJECTILE_DAMAGE: 50,
+   HAMMERHEAD_PROJECTILE_DAMAGE: 125,
+   PUFFER_PROJECTILE_DAMAGE: 150,
+   ENEMY_BASE_PROJECTILE_DAMAGE: 200,
+
+   PLAYER_COLLISION_DAMAGE: 30,
+   SLUDGER_COLLISION_DAMAGE: 20,
+   SLUDGER_MINE_COLLISION_DAMAGE: 35,
+   QUADBLASTER_COLLISION_DAMAGE: 50,
+   HAMMERHEAD_COLLISION_DAMAGE: 50,
+   PUFFER_COLLISION_DAMAGE: 75,
+   SLICER_COLLISION_DAMAGE: 200,
+   ENEMY_BASE_COLLISION_DAMAGE: 250,
+   PEBBLES_COLLISION_DAMAGE: 80,
+   ROCKO_COLLISION_DAMAGE: 240,
+
+   SLUDGER_MINE_HEALTH: 1,
+   SLUDGER_HEALTH: 80,
+   QUADBLASTER_HEALTH: 80,
+   HAMMERHEAD_HEALTH: 240, // Note that this is likely higher than the original game, but in the original game the hammerhead weapon collision box was much larger and blocked a lot of attacks from hitting the hammerhead itself, so this increase in health compensates for that
+   PUFFER_HEALTH: 280,
+   SLICER_HEALTH: 120,
+
+   // Might not even be a thing in the original game, but should have it so all tracking enemies don't just go straight to the player if the player is far enough away
+   HAMMERHEAD_TRACKING_DISTANCE: 2000,
+   PUFFER_TRACKING_DISTANCE: 2000,
 };

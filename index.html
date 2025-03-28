@@ -27,7 +27,94 @@
 </head>
 
 <body>
-	<div id="game-container">
+	<div id="info-and-plot-screen">
+		<div id="info-and-plot-information">
+			<div style="flex:47;">
+				<div class="info-and-plot-text-header">Lunatic Plot</div>
+				<p class="info-and-plot-text-body" style="text-indent: 0.75em;">You are alone on patrol at the
+					unexplored
+					borders of the Interstallar Alliance's territory. It's a remote, forbidding region known as the
+					Fringe. Suddenly you are attacked by a marauding band of alines. They are a new and belligerent
+					race,
+					whose battle tactics defy belief. You are too far away for assistance to reach you. Can you repel
+					the invasion single-handedly, or is it only a matter of time before the Interstallar Alliance falls
+					at the hands of the Lunatics?</p>
+				<p class="info-and-plot-text-body">&nbsp;</p>
+				<div class="info-and-plot-text-header">Credits</div>
+				<div class="info-and-plot-text-body">
+					<div style="display:flex;">
+						<p style="flex:4;"">Programming and Design:</p><p style=" flex:4;"">Ben Haller</p>
+					</div>
+					<div style="display:flex;">
+						<p style="flex:4;"">Lunatic Artwork:</p><p style=" flex:4;"">Igor Gasowski</p>
+					</div>
+					<div style="display:flex;">
+						<p style="flex:4;"">Advice and Whip-Cracking:</p><p style=" flex:4;"">Bruce Burkhalter</p>
+					</div>
+					<div style="display:flex;">
+						<p style="flex:4;"">Lunatic Concepts:</p><p style=" flex:4;"">Nick Rush, Jack Eastman</p>
+					</div>
+					<div style="display:flex;">
+						<p style="flex:4;"">Lunatic Permission:</p><p style=" flex:4;"">Wes Boyd (Thanks, West!)</p>
+					</div>
+					<div style="display:flex;">
+						<p style="flex:4;"">Testing:</p><p style=" flex:4;"">Jon, Bruce, Rob and Chris</p>
+					</div>
+					<div style="margin-top: 5px;">And thanks to everybody at Berkeley Systems, to all my friends
+						everwhere, to ACS, and to
+						musicians around the world.</div>
+				</div>
+			</div>
+			<div class="info-and-plot-divider">
+				<img src="images/PhotonSmall.png" height="7" width="7">
+				<img src="images/PhotonSmall.png" height="7" width="7">
+				<img src="images/PhotonSmall.png" height="7" width="7">
+				<img src="images/PhotonSmall.png" height="7" width="7">
+				<img src="images/PhotonSmall.png" height="7" width="7">
+				<img src="images/PhotonSmall.png" height="7" width="7">
+				<img src="images/PhotonSmall.png" height="7" width="7">
+				<img src="images/PhotonSmall.png" height="7" width="7">
+				<img src="images/PhotonSmall.png" height="7" width="7">
+				<img src="images/PhotonSmall.png" height="7" width="7">
+				<img src="images/PhotonSmall.png" height="7" width="7">
+				<img src="images/PhotonSmall.png" height="7" width="7">
+				<img src="images/PhotonSmall.png" height="7" width="7">
+				<img src="images/PhotonSmall.png" height="7" width="7">
+				<img src="images/PhotonSmall.png" height="7" width="7">
+				<img src="images/PhotonSmall.png" height="7" width="7">
+				<img src="images/PhotonSmall.png" height="7" width="7">
+				<img src="images/PhotonSmall.png" height="7" width="7">
+				<img src="images/PhotonSmall.png" height="7" width="7">
+				<img src="images/PhotonSmall.png" height="7" width="7">
+				<img src="images/PhotonSmall.png" height="7" width="7">
+			</div>
+			<div style="flex:40;">
+				<div class="info-and-plot-text-header">Plug</div>
+				<p class="info-and-plot-text-body">
+					Ben Haller has written one other game for the Macintosh, called Solarian II. Unlike Lunatic Fringe,
+					it will run only in 256 color mode, and it requires a 640x480 of larger monitor (which means that
+					the 12" color monitor that many LC users
+					have will not work). It has won critical acclaim in reviews by Macworld, MacUser, and EMUG. It's
+					shareware, and may be obtained from many user groups, of from the author himself at:
+				</p>
+				<div class="info-and-plot-text-body" style="margin: 5px; display: flex; align-items: center;">
+					<div>
+						<p class="info-and-plot-text-address">Sitck Software</p>
+						<p class="info-and-plot-text-address">c/o Ben Haller</p>
+						<p class="info-and-plot-text-address">32 Deer Haven Dr.</p>
+						<p class="info-and-plot-text-address">Ithaca N.Y. 14850</p>
+					</div>
+					<img src="images/StickSoftware.png" height="25" width="15" style="margin-left: 3em;">
+				</div>
+				<p class="info-and-plot-text-body">Send $25, a note ssaying you want Solarian II, and a self-addressed,
+					stamped envelope.</p>
+				<p class="info-and-plot-text-body">&nbsp;</p>
+				<p class="info-and-plot-text-body">Warning: While Lunatic Fringe is played, background processes like
+					printing and modem activity are stopped.</p>
+			</div>
+		</div>
+	</div>
+	<div id="game-screen" style="display:none;">
 		<div id="scanner">
 			<div id="scannerLayers">
 				<canvas class="baseScanner" id="scannerCanvas"></canvas>
@@ -143,8 +230,306 @@
 						</span>
 					</div>
 				</div>
+				<div style="flex: auto; display: flex; justify-content: flex-end; align-items: center; flex-direction: column;">
+					<div class="info-panel-keypress-help-text">
+						<span style="font-size: 1.5em;">•</span>
+						<span>Press Caps Locks to Pause</span>
+						<span style="font-size: 1.5em;">•</span>
+					</div>
+					<div class="info-panel-keypress-help-text">
+						<span style="font-size: 1.5em;">•</span>
+						<span>Hold Ctrl for Scores and Keybinds</span>
+						<span style="font-size: 1.5em;">•</span>
+					</div>
+					<div class="info-panel-keypress-help-text">
+						<span style="font-size: 1.5em;">•</span>
+						<span>Hold Shift for Entity Information</span>
+						<span style="font-size: 1.5em;">•</span>
+					</div>
+				</div>
 			</div>
 		</div>
+	</div>
+	<div id="enter-new-highscore-screen" style="display:none;">
+		<div id=" enter-new-highscore-information">
+			<div style="display: flex; flex: 1; justify-content: center; align-items: center;">
+				<div
+					style="border-color: #611c20; border-radius: 0.2em; border-width: 0.25em; border-style: solid; padding: 0.2em;">
+					<div
+						style="border-color: #1610b3; border-radius: 0.2em; border-width: 0.25em; border-style: solid; padding: 1em;">
+						<div style="display: flex; align-items: center; gap: 0.5em;">
+							<img src="images/StickSoftware.png" height="25" width="15">
+							<div style="color: #1b1271; font-size: 15px;">:</div>
+							<div style="color: #3a8b3d;">High score! Enter your name:</div>
+						</div>
+						<input id="enter-new-highscore-input" autocomplete="off" maxlength="20"/>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="display-highscores-screen" style="display:none;">
+		<div id="display-highscores-information">
+			<div
+				style="flex: 1; display: flex; flex-direction: row; font-family: sans-serif; font-size: 10px; line-height: 150%;">
+				<div
+					style="flex: 1; display: flex; justify-content: flex-end; align-items: flex-end; position: relative">
+					<img src="images/Logo-transparent.png" height="155" width="170"
+						style="position: absolute; top: 0em; left: 0em">
+					<div style="padding-right: 4em;">
+						<div>By</div>
+						<div>Ben Haller</div>
+					</div>
+				</div>
+				<div style="flex: 1; display: flex; flex-direction: column; justify-content: space-evenly;">
+					<div id="highscore-screen-entity-info-text">
+						Hold Shift for Entity information.
+					</div>
+					<div id="highscore-screen-current-game-info-text">
+						Press Ctrl to re-enter the Fringe...
+					</div>
+				</div>
+				<div style="flex: 1; display: flex; flex-direction: column;">
+					<div class="highscore-keybinding-info-row">
+						<div class="highscore-keybinding-info-row-label"></div>
+						<div class="highscore-keybinding-info-row-data">Keyboard</div>
+						<div class="highscore-keybinding-info-row-data">Keypad</div>
+					</div>
+					<div class="highscore-keybinding-info-row">
+						<div class="highscore-keybinding-info-row-label">Turn Left</div>
+						<div class="highscore-keybinding-info-row-data">Left Arrow</div>
+						<div class="highscore-keybinding-info-row-data">-</div>
+					</div>
+					<div class="highscore-keybinding-info-row">
+						<div class="highscore-keybinding-info-row-label">Turn Right</div>
+						<div class="highscore-keybinding-info-row-data">Right Arrow</div>
+						<div class="highscore-keybinding-info-row-data">-</div>
+					</div>
+					<div class="highscore-keybinding-info-row">
+						<div class="highscore-keybinding-info-row-label">Fire</div>
+						<div class="highscore-keybinding-info-row-data">Space</div>
+						<div class="highscore-keybinding-info-row-data">-</div>
+					</div>
+					<div class="highscore-keybinding-info-row">
+						<div class="highscore-keybinding-info-row-label">Thrust</div>
+						<div class="highscore-keybinding-info-row-data">Up Arrow</div>
+						<div class="highscore-keybinding-info-row-data">-</div>
+					</div>
+					<div class="highscore-keybinding-info-row">
+						<div class="highscore-keybinding-info-row-label">Turbo Thrust</div>
+						<div class="highscore-keybinding-info-row-data">B</div>
+						<div class="highscore-keybinding-info-row-data">-</div>
+					</div>
+					<div class="highscore-keybinding-info-row">
+						<div class="highscore-keybinding-info-row-label">Power Shield</div>
+						<div class="highscore-keybinding-info-row-data">V</div>
+						<div class="highscore-keybinding-info-row-data">-</div>
+					</div>
+					<div class="highscore-keybinding-info-row">
+						<div class="highscore-keybinding-info-row-label">Abort Ship</div>
+						<div class="highscore-keybinding-info-row-data">K</div>
+						<div class="highscore-keybinding-info-row-data">-</div>
+					</div>
+				</div>
+			</div>
+			<div class="highscore-table">
+				<div class="highscore-row">
+					<div class="highscore-row-number" style="align-self: flex-end;"></div>
+					<div class="highscore-row-name" style="align-self: flex-end;">Name</div>
+					<div class="highscore-row-score" style="align-self: flex-end;">Score</div>
+					<div class="highscore-row-level" style="align-self: flex-end;">Level</div>
+				</div>
+				<div class="highscore-row" style="flex: 1;">
+					<div class="highscore-row-number" style="align-self: flex-start;"></div>
+					<div class="highscore-row-name" style="align-self: flex-start;">----</div>
+					<div class="highscore-row-score" style="align-self: flex-start;">-----</div>
+					<div class="highscore-row-level" style="align-self: flex-start;">-----</div>
+				</div>
+				<div class="highscore-row" id="highscore-1">
+					<div class="highscore-row-number">1.</div>
+					<div class="highscore-row-name"></div>
+					<div class="highscore-row-score"></div>
+					<div class="highscore-row-level"></div>
+				</div>
+				<div class="highscore-row" id="highscore-2">
+					<div class="highscore-row-number">2.</div>
+					<div class="highscore-row-name"></div>
+					<div class="highscore-row-score"></div>
+					<div class="highscore-row-level"></div>
+				</div>
+				<div class="highscore-row" id="highscore-3">
+					<div class="highscore-row-number">3.</div>
+					<div class="highscore-row-name"></div>
+					<div class="highscore-row-score"></div>
+					<div class="highscore-row-level"></div>
+				</div>
+				<div class="highscore-row" id="highscore-4">
+					<div class="highscore-row-number">4.</div>
+					<div class="highscore-row-name"></div>
+					<div class="highscore-row-score"></div>
+					<div class="highscore-row-level"></div>
+				</div>
+				<div class="highscore-row" id="highscore-5">
+					<div class="highscore-row-number">5.</div>
+					<div class="highscore-row-name"></div>
+					<div class="highscore-row-score"></div>
+					<div class="highscore-row-level"></div>
+				</div>
+				<div class="highscore-row" id="highscore-6">
+					<div class="highscore-row-number">6.</div>
+					<div class="highscore-row-name"></div>
+					<div class="highscore-row-score"></div>
+					<div class="highscore-row-level"></div>
+				</div>
+				<div class="highscore-row" id="highscore-7">
+					<div class="highscore-row-number">7.</div>
+					<div class="highscore-row-name"></div>
+					<div class="highscore-row-score"></div>
+					<div class="highscore-row-level"></div>
+				</div>
+				<div class="highscore-row" id="highscore-8">
+					<div class="highscore-row-number">8.</div>
+					<div class="highscore-row-name"></div>
+					<div class="highscore-row-score"></div>
+					<div class="highscore-row-level"></div>
+				</div>
+				<div class="highscore-row" id="highscore-9">
+					<div class="highscore-row-number">9.</div>
+					<div class="highscore-row-name"></div>
+					<div class="highscore-row-score"></div>
+					<div class="highscore-row-level"></div>
+				</div>
+				<div class="highscore-row" id="highscore-10">
+					<div class="highscore-row-number">10.</div>
+					<div class="highscore-row-name"></div>
+					<div class="highscore-row-score"></div>
+					<div class="highscore-row-level"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="bestiary-screen" style="display:none;">
+		<div id="bestiary-information">
+			<div style="display: flex; align-items: center; flex: 1;">
+				<div class="bestiary-header" style="flex: 2">Lunatic Fringe Bestiary</div>
+				<p class="bestiary-text-body" style="flex: 1;" id="bestiary-screen-help-text">Release the Shift key to return...</p>
+			</div>
+			<div style="display: flex; flex: 8;">
+				<div class="bestiary-information-column">
+					<div class="bestiary-image-and-text-container">
+						<div class="bestiary-image-container">
+							<img src="images/PlayerShip-Static.png" height="37" width="42">
+						</div>
+						<p class="bestiary-text-body">Your ship. The ultimate battle machine of the 21st
+							century!</p>
+					</div>
+					<div class="bestiary-image-and-text-container">
+						<div class="bestiary-image-container">
+							<img src=" images/PhotonSmall.png" height="7" width="7">
+							<img src="images/PhotonMedium.png" height="10" width="10">
+							<img src="images/PhotonLarge.png" height="16" width="15">
+						</div>
+						<p class="bestiary-text-body">Your shots. Bigger is better, at least in this
+							case.</p>
+					</div>
+					<div class="bestiary-image-and-text-container">
+						<div class="bestiary-image-container">
+							<img src="images/SpareParts.png" height="13" width="13">
+							<img src="images/ExtraFuel.png" height="13" width="13">
+							<img src="images/RepairShip.png" height="13" width="13">
+						</div>
+						<p class="bestiary-text-body">Spare parts, extra fuel and ship repairs. Commonly
+							called "yummies".</p>
+					</div>
+					<div class="bestiary-image-and-text-container">
+						<div class="bestiary-image-container">
+							<img src="images/PowerShield.png" height="19" width="15">
+							<img src="images/TurboThrust.png" height="16" width="15">
+						</div>
+						<p class="bestiary-text-body">Invulnerability and Turbo Thrust. You start with
+							one each. The rest is luck.</p>
+					</div>
+					<div class="bestiary-image-and-text-container">
+						<div class="bestiary-image-container">
+							<img src="images/DoublePoints.png" height="16" width="15">
+						</div>
+						<p class="bestiary-text-body">This, for a limited time, gives you twice as many
+							points as you deserve.</p>
+					</div>
+					<div class="bestiary-image-and-text-container">
+						<div class="bestiary-image-container">
+							<img src="images/Base-Static.png" height="32" width="42">
+						</div>
+						<p class="bestiary-text-body">Your base. Stop here to refuel and recharge. Watch
+							for the enemy though - they know where you live.</p>
+					</div>
+					<div class="bestiary-image-and-text-container">
+						<div class="bestiary-image-container" style="flex-direction: column;">
+							<img src=" images/Rocko.png" height="36" width="35">
+							<img src="images/Pebbles.png" height="26" width="25">
+						</div>
+						<p class="bestiary-text-body">Asteroids, named Rocko and Pebbles. Some people
+							entertain themselves by artificially accelerating this poor hapless space debris to very
+							very high speeds. This is strictly forbidden by Galactic Orginance 729.881-ZT13.</p>
+					</div>
+				</div>
+				<div style="flex: 1;"></div>
+				<div class="bestiary-information-column">
+					<div class="bestiary-image-and-text-container">
+						<div class="bestiary-image-container">
+							<img src="images/Quadblaster-Static.png" height="50" width="40">
+						</div>
+						<p class="bestiary-text-body">The MultiBlaster. Four gun barrels so he can shoot
+							a lot if he
+							wants to. He wants to. Lucky he's but slow.</p>
+					</div>
+					<div class="bestiary-image-and-text-container">
+						<div class="bestiary-image-container">
+							<img src="images/Puffer-Static.png" height="49" width="42">
+						</div>
+						<p class="bestiary-text-body">Affectionately known as the "Puffer". He'll smoke
+							you if you don't
+							watch out.</p>
+					</div>
+					<div class="bestiary-image-and-text-container">
+						<div class="bestiary-image-container">
+							<img src="images/Hammerhead-Static.png" height="25" width="50">
+						</div>
+						<p class="bestiary-text-body">The Hammerhead. Saving the universe while hammered
+							is fun at
+							parties.</p>
+					</div>
+					<div class="bestiary-image-and-text-container">
+						<div class="bestiary-image-container">
+							<img src="images/Slicer-Static.png" height="50" width="48">
+						</div>
+						<p class="bestiary-text-body">It slices, it dices! The Slicer will catch you
+							with your pants
+							down. Ow.</p>
+					</div>
+					<div class="bestiary-image-and-text-container">
+						<div class="bestiary-image-container">
+							<img src=" images/Sludger-Static.png" height="31" width="34">
+							<img src="images/SludgerMine-Static.png" height="21" width="24">
+						</div>
+						<p class="bestiary-text-body">A sort of cosmis chicken, the Sludger lays mines,
+							but it's really
+							stupid.</p>
+					</div>
+					<div class="bestiary-image-and-text-container">
+						<div class="bestiary-image-container">
+							<img src="images/EnemyBase.png" height="60" width="62">
+						</div>
+						<p class="bestiary-text-body">This is the enemy base. Exercise: compare it to
+							your base. Feel
+							small? The Lunatic's cafeteria serves better food, too.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="help-screen" style="display:none;">
+		TODO: Figure out what the Help screen looked like, or if the Help screen was just another name for one of the other existing screens
 	</div>
 </body>
 

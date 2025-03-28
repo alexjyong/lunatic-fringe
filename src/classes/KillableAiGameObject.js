@@ -1,6 +1,7 @@
 import { Vector } from "../utility/Vector.js";
 import { AiGameObject } from "./AiGameObject.js";
 import { Layer } from "./managers/Layer.js";
+import { LevelManager } from "./managers/LevelManager.js";
 import { MediaManager } from "./managers/MediaManager.js";
 import { ObjectManager } from "./managers/ObjectManager.js";
 
@@ -10,6 +11,7 @@ export class KillableAiGameObject extends AiGameObject {
 
         this.health = health;
         this.pointValue = pointValue;
+        this.deathCountsTowardsEnemiesAlive = true;
     }
 
     playDeathSound() {
@@ -17,10 +19,15 @@ export class KillableAiGameObject extends AiGameObject {
         MediaManager.Audio.SludgerDeath.play();
     }
 
-    die() {
+    die(playDeathSound = true) {
         this.log(this.getClassName() + " died!");
-        this.playDeathSound();
+        if (playDeathSound) {
+            this.playDeathSound();
+        }
         ObjectManager.removeObject(this);
+        if (this.deathCountsTowardsEnemiesAlive) {
+            LevelManager.numberOfEnemiesAlive--;
+        }
     }
 
     handleCollision(otherObject) {
@@ -30,7 +37,7 @@ export class KillableAiGameObject extends AiGameObject {
             // SludgerMines are weak, so if they collide with anything they should die and the other
             // object should not get hurt or have their physics be affected, so return
             return;
-        } else if (otherObject.layer === Layer.PLAYER_PROJECTILE || otherObject.layer === Layer.PUFFER_PROJECTILE || otherObject.layer === Layer.QUAD_BLASTER_PROJECTILE) {	
+        } else if (otherObject.layer === Layer.PLAYER_PROJECTILE || otherObject.layer === Layer.PUFFER_PROJECTILE || otherObject.layer === Layer.QUAD_BLASTER_PROJECTILE) {
             // FUTURE TODO: Based on some small gameplay clips I found, projectiles should cause physics affects on the colliding object! (Based on the gameplay where enemy base bullet affects physics of
             // player ship). So we will still want to call super.handleCollision here, as well as give all of the projectiles a mass value.?			
             this.log(thisName + " hit by Projectile: " + otherName);
@@ -39,7 +46,7 @@ export class KillableAiGameObject extends AiGameObject {
             if (this.health <= 0) {
                 this.die();
 
-                if(otherObject.layer === Layer.PLAYER_PROJECTILE) {
+                if (otherObject.layer === Layer.PLAYER_PROJECTILE) {
                     //Only award points if the player was the one to kill the this				
                     this.playerShipReference.addToScore(this.pointValue);
                 }
@@ -47,7 +54,7 @@ export class KillableAiGameObject extends AiGameObject {
         } else if (otherObject.layer === Layer.PLAYER) {
             super.handleCollision(otherObject);
             this.log(thisName + " hit by the player");
-            if(otherObject.isTurboThrusting()) {
+            if (otherObject.isTurboThrusting()) {
                 // Turbo thrusting player instantly kills any enemy (with the exception of the asteroids and enemy base)
                 this.health = 0;
             } else {

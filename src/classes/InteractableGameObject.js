@@ -60,20 +60,23 @@ export class InteractableGameObject extends GameObject {
         // this.percentVisible: Used to apply percent visible effect to specific objects. For example, fading in the hammerhead hammer as it starts to respawn
         const totalPercentageVisible = percentageVisible * this.percentVisible / 100;
 
-        // Draw object to the effect canvas, so that any effects can be applied to the sprite before it is drawn on the main canvas
-        effectCanvasContext.drawImage(this.sprite, this.spriteXOffset, this.spriteYOffset, this.width, this.height, this.x - this.width / 2, this.y - this.height / 2 - this.imageYOffset, this.width, this.height);
+        // Only draw object if visible. However, even if not visible, still draw debug information.
+        if (totalPercentageVisible > 0) {
+            // Draw object to the effect canvas, so that any effects can be applied to the sprite before it is drawn on the main canvas
+            effectCanvasContext.drawImage(this.sprite, this.spriteXOffset, this.spriteYOffset, this.width, this.height, this.x - this.width / 2, this.y - this.height / 2 - this.imageYOffset, this.width, this.height);
 
-        // Draw image static effect. Only draw is percentage visible is not 100 percent, as no reason to read image data if we won't be causing a static effect
-        if (this.percentVisible !== 100 || percentageVisible !== 100) {
-            GameManager.applyStaticEffectToCanvas(effectCanvasContext, totalPercentageVisible, this.x - this.width / 2, this.y - this.height / 2 - this.imageYOffset, this.width, this.height)
+            // Draw image static effect. Only draw is percentage visible is not 100 percent, as no reason to read image data if we won't be causing a static effect
+            if (this.percentVisible !== 100 || percentageVisible !== 100) {
+                GameManager.applyStaticEffectToCanvas(effectCanvasContext, totalPercentageVisible, this.x - this.width / 2, this.y - this.height / 2 - this.imageYOffset, this.width, this.height)
+            }
+
+            // Sprite drawing
+            // There is no rotation in this drawing since images are not actually rotated, the rotation comes from the sprite sheets
+            // Object is drawn on the main canvas using the end result in the temp canvas
+            canvasContext.drawImage(effectCanvasContext.canvas, 0, 0);
+            // Clear the drawing off of the effect canvas to prevent interference with the next drawing
+            effectCanvasContext.clearRect(this.x - this.width / 2, this.y - this.height / 2 - this.imageYOffset, this.width, this.height);
         }
-
-        // Sprite drawing
-        // There is no rotation in this drawing since images are not actually rotated, the rotation comes from the sprite sheets
-        // Object is drawn on the main canvas using the end result in the temp canvas
-        canvasContext.drawImage(effectCanvasContext.canvas, 0, 0);
-        // Clear the drawing off of the effect canvas to prevent interference with the next drawing
-        effectCanvasContext.clearRect(this.x - this.width / 2, this.y - this.height / 2 - this.imageYOffset, this.width, this.height);
 
         // Common debug drawing
         if (GameConfig.debug) {
@@ -183,9 +186,29 @@ export class InteractableGameObject extends GameObject {
         this.velocityY = currentVelocity.y;
     }
 
+    /**
+     * Calculates the relative position from this object to another game object. Always finds
+     * the shortest vector and accounts for world wrapping.
+     * 
+     * @param {*} object Other game object to get the relative position to
+     * @returns Vector with x y distance to object
+     */
     relativePositionTo(object) {
+        const fullWorldSize = GameConfig.HALF_OF_WORLD_SIZE * 2;
+
         let x = object.x - this.x;
+        if (x < -GameConfig.HALF_OF_WORLD_SIZE) {
+            x += fullWorldSize;
+        } else if (x > GameConfig.HALF_OF_WORLD_SIZE) {
+            x -= fullWorldSize;
+        }
         let y = object.y - this.y;
+        if (y < -GameConfig.HALF_OF_WORLD_SIZE) {
+            y += fullWorldSize;
+        } else if (y > GameConfig.HALF_OF_WORLD_SIZE) {
+            y -= fullWorldSize;
+        }
+
         return new Vector(x, y);
     }
 

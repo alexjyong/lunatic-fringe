@@ -96,7 +96,7 @@ export class PlayerSystem extends Logger {
     }
 
     updateLabel() {
-        DocumentManager.updateElementText(`${this.systemDocumentName}-label`, GameConfig.debug ? `${this.documentLabel}: (${this.operatingPercentage})` : `${this.documentLabel}:`)
+        DocumentManager.updateElementTextByElementName(`${this.systemDocumentName}-label`, GameConfig.debug ? `${this.documentLabel}: (${this.operatingPercentage})` : `${this.documentLabel}:`)
     }
 
     getIndicatorColorClass(indicatorNumber) {

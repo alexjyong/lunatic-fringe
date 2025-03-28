@@ -52,7 +52,6 @@ export class CollisionManager {
         this.collisionMatrix[Layer.BULLET_POWERUP][Layer.PLAYER_PROJECTILE] = false;
         this.collisionMatrix[Layer.STORED_POWERUP][Layer.PLAYER_PROJECTILE] = false;
         this.collisionMatrix[Layer.PLAYER_BASE][Layer.PLAYER_PROJECTILE] = false;
-        this.collisionMatrix[Layer.ENEMY_BASE_PHOTON][Layer.PLAYER_PROJECTILE] = false;
 
         // Puffer projectiles should not collide with other puffer projectiles, puffers, powerups, the player base, the enemy base, or the enemy base photon
         this.collisionMatrix[Layer.PUFFER_PROJECTILE][Layer.PUFFER_PROJECTILE] = false;

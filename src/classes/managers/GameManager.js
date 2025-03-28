@@ -23,6 +23,9 @@ import { PowerShieldPowerup } from "../powerups/PowerShieldPowerup.js";
 import { TurboThrustPowerup } from "../powerups/TurboThrustPowerup.js";
 import { DocumentManager } from "./DocumentManager.js";
 import { LevelManager } from "./LevelManager.js";
+import { LocalStorageHighscoreService } from "../../scoring/LocalStorageHighscoreService.js";
+import { Screen, ScreenManager } from "./ScreenManager.js";
+import { Score } from "../../scoring/Score.js";
 
 export class GameManager {
     static scannerContext;
@@ -35,9 +38,8 @@ export class GameManager {
     static message;
     static playerShip;
     static isPaused;
-    static wasPausedByKey;
-    static isRunning;
-    static score;
+    static wasPausedByPlayerPressingPauseKey;
+    static isRunning = false;
     static {
         // Need to bind animationLoop function to `this` or else we lose the `this` context when requestAnimationFrame calls the function
         this.animationLoop = this.animationLoop.bind(this);
@@ -48,21 +50,46 @@ export class GameManager {
     static MAX_FRAME_SKIP = 10
     static nextGameTick //NOTE: Should be set right before game starts so that it is as recent as possible
 
-    static initializeGame(scannerCanvasContext, scannerCanvasProjectilesContext, scannerCanvasEffectContext, radarCanvasContext) {
-        this.scannerContext = scannerCanvasContext;
-        this.scannerProjectileContext = scannerCanvasProjectilesContext;
-        this.scannerEffectContext = scannerCanvasEffectContext;
+    static highScoreService;
+    static NUMBER_OF_HIGH_SCORES_TO_TRACK = 10;
 
-        this.radarContext = radarCanvasContext;
+    static isGameRunning() {
+        return this.isRunning;
+    }
+
+    static setupGame() {
+        console.log('Starting new game of Lunatic Fringe');
+
+        this.highScoreService = new LocalStorageHighscoreService(this.NUMBER_OF_HIGH_SCORES_TO_TRACK);
+        // Updates high scores in the document. Also removes any highlighting due to missing optional parameter
+        this.highScoreService.getHighscores().then((highScores) => {
+            DocumentManager.updateHighScoresElements(highScores);
+        })
+
+        DocumentManager.setScannerAndRadarCanvasSizes();
+
+        const scannerCanvas = document.getElementById('scannerCanvas');
+        const scannerProjectileCanvas = document.getElementById('projectilesScannerCanvas');
+        const effectScannerCanvas = document.getElementById('effectScannerCanvas');
+        const radarCanvas = document.getElementById('radarCanvas');
+
+        this.scannerContext = scannerCanvas.getContext("2d", { willReadFrequently: true });
+        this.scannerProjectileContext = scannerProjectileCanvas.getContext("2d", { willReadFrequently: true });
+        this.scannerEffectContext = effectScannerCanvas.getContext("2d", { willReadFrequently: true });
+
+        this.radarContext = radarCanvas.getContext("2d", { willReadFrequently: true });
 
         this.isPaused = false;
-        this.wasPausedByKey = false;
+        this.wasPausedByPlayerPressingPauseKey = false;
         this.isRunning = true;
+
+        // Reset the object manager for a new game. Initialize this before the game and level managers.
+        ObjectManager.resetForNewGame();
 
         // Initialize the game service manager
         GameServiceManager.initialize(this);
 
-        // Initialize the leve manager
+        // Initialize the level manager
         LevelManager.initializeGame();
 
         // Initalize all of the game objects
@@ -73,9 +100,9 @@ export class GameManager {
         this.playerShip.powerupStateManager.obtainPowerup(new TurboThrustPowerup(0, 0));
 
         // Add the background stars
-        for (let i = 0; i < 600; i++) {
-            let x = Math.random() * (GameBound.RIGHT - GameBound.LEFT + 1) + GameBound.LEFT;
-            let y = Math.random() * (GameBound.BOTTOM - GameBound.TOP + 1) + GameBound.TOP;
+        for (let i = 0; i < 1000; i++) {
+            let x = RandomUtil.randomNumber(GameBound.LEFT, GameBound.RIGHT);
+            let y = RandomUtil.randomNumber(GameBound.TOP, GameBound.BOTTOM);
             ObjectManager.addObject(new Star(x, y), false)
         }
 
@@ -84,20 +111,24 @@ export class GameManager {
         ObjectManager.addObject(new PlayerBase(playerBaseLocation.x, playerBaseLocation.y));
 
         // Add the enemy base
-        // Since the player base is centered based on the starting canvas size (so that it is centered on the screen), base enemy base location on player base location and game bounds so that the two bases are always the same distance from each other
-        // Since the GameBoundSize is half of the width and height of the game bounds, subtract that from both coordinates so the enemy base is halfway across the world in both directions (and subtract it since player position is guaranteed to be positive
-        // so subtracting the GameBoundSize should make the coordinates of the enemy base still be within the GameBounds values).
-        let enemyBaseLocation = playerBaseLocation.subtract(new Vector(GameBoundSize, GameBoundSize));
+        // Slightly randomize the location of the Enemy base compared to the player base so that it is not always in the same place but also cannot be right next to the player base (looks like the original game might have done something like this)
+        const enemyBaseOffsetFromPlayerBase = new Vector(
+            GameBoundSize + GameConfig.ENEMY_BASE_SPAWN_VARIATION_PERCENTAGE * RandomUtil.randomNumber(-GameBoundSize, GameBoundSize),
+            GameBoundSize + GameConfig.ENEMY_BASE_SPAWN_VARIATION_PERCENTAGE * RandomUtil.randomNumber(-GameBoundSize, GameBoundSize)
+        );
+        const enemyBaseLocation = playerBaseLocation.add(enemyBaseOffsetFromPlayerBase)
+        this.checkBounds(enemyBaseLocation);
         ObjectManager.addObject(new EnemyBase(enemyBaseLocation.x, enemyBaseLocation.y, this.playerShip));
+        console.log(`Enemy Base created at (${enemyBaseLocation.x}, ${enemyBaseLocation.y})`);
 
         // Add asteroids to the game
-        for (let i = 0; i < 6; i++) {
+        for (let i = 0; i < 14; i++) {
             let randomPosition = this.getRandomStartingPosition();
             let randomVelocity = this.getRandomStartingVelocity(2);
             ObjectManager.addObject(new Pebbles(randomPosition.x, randomPosition.y, randomVelocity.x, randomVelocity.y));
         }
 
-        for (let i = 0; i < 3; i += 1) {
+        for (let i = 0; i < 8; i += 1) {
             let randomPosition = this.getRandomStartingPosition();
             let randomVelocity = this.getRandomStartingVelocity(3);
             ObjectManager.addObject(new Rocko(randomPosition.x, randomPosition.y, randomVelocity.x, randomVelocity.y));
@@ -180,23 +211,35 @@ export class GameManager {
     }
 
     static handleResize() {
-        let oldCenterX = this.scannerContext.canvas.width / 2;
-        let oldCenterY = this.scannerContext.canvas.height / 2;
+        // Only need to handle a resize if the game is actually currently running
+        if (this.isGameRunning()) {
+            let oldCenterX = this.scannerContext.canvas.width / 2;
+            let oldCenterY = this.scannerContext.canvas.height / 2;
 
-        let scannerDimensions = DocumentManager.getElementDimensions('scanner');
-        this.scannerContext.canvas.width = scannerDimensions.x;
-        this.scannerContext.canvas.height = scannerDimensions.y;
+            let scannerDimensions = DocumentManager.getElementDimensions('scanner');
+            // Scanner dimenions being zero means they are currently hidden from the screen, do not handle resize as current size is 0
+            if (scannerDimensions.x !== 0 && scannerDimensions.y !== 0) {
+                this.scannerContext.canvas.width = scannerDimensions.x;
+                this.scannerContext.canvas.height = scannerDimensions.y;
+    
+                this.scannerProjectileContext.canvas.width = scannerDimensions.x;
+                this.scannerProjectileContext.canvas.height = scannerDimensions.y;
+    
+                this.scannerEffectContext.canvas.width = scannerDimensions.x;
+                this.scannerEffectContext.canvas.height = scannerDimensions.y;
+    
+                let diffX = this.scannerContext.canvas.width / 2 - oldCenterX;
+                let diffY = this.scannerContext.canvas.height / 2 - oldCenterY;
+    
+                for (let i = 0; i < ObjectManager.objects.length; i++) {
+                    ObjectManager.objects[i].x += diffX;
+                    ObjectManager.objects[i].y += diffY;
+                    this.checkBounds(ObjectManager.objects[i]);
+                }
 
-        this.scannerProjectileContext.canvas.width = scannerDimensions.x;
-        this.scannerProjectileContext.canvas.height = scannerDimensions.y;
-
-        let diffX = this.scannerContext.canvas.width / 2 - oldCenterX;
-        let diffY = this.scannerContext.canvas.height / 2 - oldCenterY;
-
-        for (let i = 0; i < ObjectManager.objects.length; i++) {
-            ObjectManager.objects[i].x += diffX;
-            ObjectManager.objects[i].y += diffY;
-            this.checkBounds(ObjectManager.objects[i]);
+                // Redraw the scene
+                GameManager.drawScene();
+            }
         }
     }
 
@@ -235,6 +278,13 @@ export class GameManager {
                 if (CollisionManager.doObjectLayersCollide(collidablesSnapshot[i], collidablesSnapshot[j]) && (Math.pow((collidablesSnapshot[j].getCollisionCenterX() - collidablesSnapshot[i].getCollisionCenterX()), 2) + Math.pow((collidablesSnapshot[j].getCollisionCenterY() - collidablesSnapshot[i].getCollisionCenterY()), 2)
                     <=
                     Math.pow((collidablesSnapshot[i].collisionRadius + collidablesSnapshot[j].collisionRadius), 2))) {
+
+                    if ((collidablesSnapshot[i] instanceof PlayerShip && collidablesSnapshot[i].isDead) || (collidablesSnapshot[j] instanceof PlayerShip && collidablesSnapshot[j].isDead)) {
+                        // Ignore collisions with the player if the player is dead
+                        // Necessary because we do not want to remove the player from the game, enemies still act like player is in the space where they died
+                        continue;
+                    }
+
                     // This stores the velocity of the first object before handling the collision of the first object with the second object (which changes the velocity of the first object).
                     // It then stores the new velocity of the first object, sets the first object back to the old velocity and then handles collision of the second object with the first object
                     // (that way the second object reacts based on the first objects original velocity). After that it sets the velocity of the first object back to the new velocity.
@@ -475,29 +525,59 @@ export class GameManager {
     static endGame() {
         this.isPaused = true;
         this.isRunning = false;
-        this.displayMessage("You achieved a score of " + this.playerShip.score + " before the fringe took you", 99999999999);
-        ObjectManager.removeObject(this.playerShip)
+        ObjectManager.removeObject(this.playerShip);
+
+        const playerScore = LevelManager.score;
+
+        this.highScoreService.getHighscores().then((highscores) => {
+            const highscoreSize = highscores.length;
+            const lowestScore = highscores[highscoreSize - 1];
+
+            if (highscoreSize < this.NUMBER_OF_HIGH_SCORES_TO_TRACK || lowestScore.score < playerScore) {
+                ScreenManager.switchToScreen(Screen.ENTER_HIGHSCORE_SCREEN);
+            } else {
+                ScreenManager.switchToScreen(Screen.DISPLAY_HIGHSCORES_SCREEN);
+            }
+        });
     }
 
-    static toggleGamePaused(activatedByKey) {
-        if (!this.isPaused) {
-            this.pauseGame(activatedByKey);
+    static async submitScoreForUsername(username) {
+        const playerScore = LevelManager.score;
+        const playerLevel = LevelManager.level;
+        const newHighScore = new Score(username, playerLevel, playerScore);
+        return this.highScoreService.submitScore(newHighScore).then((highScores) => {
+            return {
+                allScores: highScores,
+                playerScore: playerScore
+            };
+        });
+    }
+
+    static toggleGamePaused(pauseTriggeredByPlayerPressingPause) {
+        if (this.isPaused) {
+            // Game is currently paused
+            // If game was not originally paused by player, unpause regardless
+            // OR, if game was originally paused by player, only unpause if this was also caused by player
+            if (!GameManager.wasPausedByPlayerPressingPauseKey || pauseTriggeredByPlayerPressingPause) {
+                this.resumeGame();
+            }
         } else {
-            this.resumeGame();
+            // Game is currently active
+            this.pauseGame(pauseTriggeredByPlayerPressingPause);
         }
     }
 
-    static pauseGame(activatedByKey = false) {
-        if (activatedByKey) {
-            this.wasPausedByKey = true;
+    static pauseGame(pauseTriggeredByPlayerPressingPause = false) {
+        if (pauseTriggeredByPlayerPressingPause) {
+            this.wasPausedByPlayerPressingPauseKey = true;
         }
         this.isPaused = true;
-        console.log('Paused game, was activated by key:', activatedByKey);
+        console.log('Paused game, was activated by player pressing pause key:', pauseTriggeredByPlayerPressingPause);
     }
 
     static resumeGame() {
         this.isPaused = false;
-        this.wasPausedByKey = false;
+        this.wasPausedByPlayerPressingPauseKey = false;
         this.gameLoop(true);
         this.animationLoop();
         console.log('Resumed game');
@@ -524,17 +604,21 @@ export class GameManager {
 
         // Even if we process 10 frames, we only want to draw once (no point in drawing older frames)
         if (loops) {
-            // Clear canvases for drawing a new scene
-            this.scannerContext.clearRect(0, 0, this.scannerContext.canvas.width, this.scannerContext.canvas.height);
-            this.scannerProjectileContext.clearRect(0, 0, this.scannerProjectileContext.canvas.width, this.scannerProjectileContext.canvas.height);
-
-            this.drawObjects(Object.values(ObjectManager.nonProjectileObjects), this.scannerContext);
-            this.drawObjects(Object.values(ObjectManager.projectileObjects), this.scannerProjectileContext);
-            this.drawRadar(ObjectManager.collidables, this.radarContext);
+            this.drawScene();
         }
 
         // Update the Level manager to see if we have can advance to the next level
         LevelManager.update(loops);
+    }
+
+    static drawScene() {
+        // Clear canvases for drawing a new scene
+        this.scannerContext.clearRect(0, 0, this.scannerContext.canvas.width, this.scannerContext.canvas.height);
+        this.scannerProjectileContext.clearRect(0, 0, this.scannerProjectileContext.canvas.width, this.scannerProjectileContext.canvas.height);
+
+        this.drawObjects(Object.values(ObjectManager.nonProjectileObjects), this.scannerContext);
+        this.drawObjects(Object.values(ObjectManager.projectileObjects), this.scannerProjectileContext);
+        this.drawRadar(ObjectManager.collidables, this.radarContext);
     }
 
     static animationLoop() {

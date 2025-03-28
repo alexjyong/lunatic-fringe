@@ -1,3 +1,4 @@
+import { GameConfig } from "../../config/GameConfig.js";
 import { Vector } from "../../utility/Vector.js";
 import { KillableAiGameObject } from "../KillableAiGameObject.js";
 import { Layer } from "../managers/Layer.js";
@@ -7,7 +8,7 @@ export class Slicer extends KillableAiGameObject {
     static MAX_SPEED = 10;
 
     constructor(xLocation, yLocation, velocityX, velocityY, angle, playerShip) {
-        super(xLocation, yLocation, Layer.SLICER, 50, 50, angle, MediaManager.Sprites.Slicer, velocityX, velocityY, 14, 50, playerShip, 100, 400, 100);
+        super(xLocation, yLocation, Layer.SLICER, 50, 50, angle, MediaManager.Sprites.Slicer, velocityX, velocityY, 14, 50, playerShip, GameConfig.SLICER_COLLISION_DAMAGE, GameConfig.SLICER_HEALTH, GameConfig.SLICER_POINT_VALUE);
 
         this.TURN_ABILITY = 0.3;
         this.ACCELERATION = 0.175;
