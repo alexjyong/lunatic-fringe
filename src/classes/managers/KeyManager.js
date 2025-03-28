@@ -1,6 +1,7 @@
 import { ScreenManager } from "./ScreenManager.js";
 
 export const Key = {
+    ENTER: 13,
     SHIFT: 16,
     CTRL: 17,
     SPACE: 32,

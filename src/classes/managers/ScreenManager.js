@@ -1,9 +1,11 @@
+import { Score } from "../../scoring/Score.js";
 import { DocumentManager } from "./DocumentManager.js";
 import { GameManager } from "./GameManager.js";
 import { Key } from "./KeyManager.js";
+import { LevelManager } from "./LevelManager.js";
 
 // Note: These match the id values in the html file
-const Screen = {
+export const Screen = {
   INFO_AND_PLOT_SCREEN: 'info-and-plot-screen',
   GAMEPLAY_SCREEN: 'game-screen',
   ENTER_HIGHSCORE_SCREEN: 'enter-new-highscore-screen',
@@ -15,6 +17,8 @@ const Screen = {
 export class ScreenManager {
   static STARTING_SCREEN = Screen.INFO_AND_PLOT_SCREEN;
   static currentScreen = this.STARTING_SCREEN;
+
+  static HIGH_SCORE_INPUT_ID = 'enter-new-highscore-input';
 
   static handleKeyDown(key) {
     switch (this.currentScreen) {
@@ -66,6 +70,12 @@ export class ScreenManager {
       case Screen.GAMEPLAY_SCREEN:
         break;
       case Screen.ENTER_HIGHSCORE_SCREEN:
+        const enteredName = DocumentManager.getValueOfInputElement(this.HIGH_SCORE_INPUT_ID);
+        if (key === Key.ENTER && enteredName) {
+          GameManager.submitScoreForUsername(enteredName).then((scoreInformation) => {
+            this.switchToScreen(Screen.DISPLAY_HIGHSCORES_SCREEN, {allScores: scoreInformation.allScores, scoreToHighlight: scoreInformation.playerScore});
+          });
+        }
         break;
       case Screen.DISPLAY_HIGHSCORES_SCREEN:
         if (key === Key.CTRL && GameManager.isGameRunning()) {
@@ -86,13 +96,21 @@ export class ScreenManager {
     }
   }
 
-  static switchToScreen(newScreen) {
+  static switchToScreen(newScreen, otherOptions) {
     DocumentManager.markScreenAsHidden(this.currentScreen);
     DocumentManager.markScreenAsShowing(newScreen);
     this.currentScreen = newScreen;
 
     if (newScreen === Screen.GAMEPLAY_SCREEN && !GameManager.isGameRunning()) {
       GameManager.setupGame();
+    }
+
+    if (newScreen === Screen.ENTER_HIGHSCORE_SCREEN) {
+      DocumentManager.focusOnElement(this.HIGH_SCORE_INPUT_ID);
+    }
+
+    if (newScreen === Screen.DISPLAY_HIGHSCORES_SCREEN && otherOptions) {
+      DocumentManager.updateHighScoresElements(otherOptions.allScores, otherOptions.scoreToHighlight);
     }
   }
 }

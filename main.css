@@ -360,6 +360,10 @@ High Score Screen
     align-items: center;
 }
 
+.highscore-highlight {
+    color: red;
+}
+
 .highscore-row-number {
     flex: 7;
 }

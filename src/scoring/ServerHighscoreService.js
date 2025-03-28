@@ -1,3 +1,5 @@
+import { Score } from "./Score.js";
+
 /**
  * Tracks highscores remotely on a server. The server specified by the 
  * `baseUrl` provided during construction must:

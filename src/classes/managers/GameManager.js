@@ -23,6 +23,9 @@ import { PowerShieldPowerup } from "../powerups/PowerShieldPowerup.js";
 import { TurboThrustPowerup } from "../powerups/TurboThrustPowerup.js";
 import { DocumentManager } from "./DocumentManager.js";
 import { LevelManager } from "./LevelManager.js";
+import { LocalStorageHighscoreService } from "../../scoring/LocalStorageHighscoreService.js";
+import { Screen, ScreenManager } from "./ScreenManager.js";
+import { Score } from "../../scoring/Score.js";
 
 export class GameManager {
     static scannerContext;
@@ -47,12 +50,21 @@ export class GameManager {
     static MAX_FRAME_SKIP = 10
     static nextGameTick //NOTE: Should be set right before game starts so that it is as recent as possible
 
+    static highScoreService;
+    static NUMBER_OF_HIGH_SCORES_TO_TRACK = 10;
+
     static isGameRunning() {
         return this.isRunning;
     }
 
     static setupGame() {
         console.log('Starting new game of Lunatic Fringe');
+
+        this.highScoreService = new LocalStorageHighscoreService(this.NUMBER_OF_HIGH_SCORES_TO_TRACK);
+        // Updates high scores in the document. Also removes any highlighting due to missing optional parameter
+        this.highScoreService.getHighscores().then((highScores) => {
+            DocumentManager.updateHighScoresElements(highScores);
+        })
 
         DocumentManager.setScannerAndRadarCanvasSizes();
 
@@ -498,8 +510,32 @@ export class GameManager {
     static endGame() {
         this.isPaused = true;
         this.isRunning = false;
-        this.displayMessage("You achieved a score of " + LevelManager.score + " before the fringe took you", 99999999999);
         ObjectManager.removeObject(this.playerShip);
+
+        const playerScore = LevelManager.score;
+
+        this.highScoreService.getHighscores().then((highscores) => {
+            const highscoreSize = highscores.length;
+            const lowestScore = highscores[highscoreSize - 1];
+
+            if (highscoreSize < this.NUMBER_OF_HIGH_SCORES_TO_TRACK || lowestScore.score < playerScore) {
+                ScreenManager.switchToScreen(Screen.ENTER_HIGHSCORE_SCREEN);
+            } else {
+                ScreenManager.switchToScreen(Screen.DISPLAY_HIGHSCORES_SCREEN);
+            }
+        });
+    }
+
+    static async submitScoreForUsername(username) {
+        const playerScore = LevelManager.score;
+        const playerLevel = LevelManager.level;
+        const newHighScore = new Score(username, playerLevel, playerScore);
+        return this.highScoreService.submitScore(newHighScore).then((highScores) => {
+            return {
+                allScores: highScores,
+                playerScore: playerScore
+            };
+        });
     }
 
     static toggleGamePaused(activatedByKey) {
