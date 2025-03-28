@@ -83,6 +83,9 @@ export class GameManager {
         this.wasPausedByPlayerPressingPauseKey = false;
         this.isRunning = true;
 
+        // Reset the object manager for a new game. Initialize this before the game and level managers.
+        ObjectManager.resetForNewGame();
+
         // Initialize the game service manager
         GameServiceManager.initialize(this);
 

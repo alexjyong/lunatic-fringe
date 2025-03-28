@@ -29,12 +29,14 @@ export class LevelManager {
     // The possible enemies that can currently be spawned in, indicated by Layer
     static possibleEnemiesToSpawn = [];
     // The weights associated with the possible enemy spawns
-    static possibleEnemiesToSpawnWeights;
+    static possibleEnemiesToSpawnWeights = [];
     // The number of enemies currently alive
     static numberOfEnemiesAlive;
     
     static initializeGame() {
-        this.score = 0;
+        this.setScore(0);
+        this.delayFrameCount = 0;
+        this.inNextLevelDelay = false;
         this.maximumEnemiesInTheWorld = GameConfig.MAXIMUM_NUMBER_OF_ENEMIES_AT_LEVEL_ONE;
         this.scoreForNextLevel = GameConfig.SCORE_NEEDED_FOR_FIRST_LEVEL_UP;
         this.nextScoreLevelIncreaseAmount = this.scoreForNextLevel + GameConfig.SCORE_REQUIREMENT_INCREASE_PER_LEVEL;
@@ -78,10 +80,14 @@ export class LevelManager {
         }
     }
 
-    static updateScore(scoreChange) {
-        this.score += scoreChange;
+    static setScore(scoreValue) {
+        this.score = scoreValue;
 
         DocumentManager.updateScore(this.score);
+    }
+
+    static updateScore(scoreChange) {
+        this.setScore(this.score + scoreChange)
     }
 
     static getEnemyToSpawn() {

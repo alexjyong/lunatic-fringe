@@ -135,15 +135,7 @@ export class ScreenManager {
         DocumentManager.updateElementTextByElementName(this.HIGH_SCORE_CURRENT_GAME_INFO_TEXT_ID, 'Press Ctrl to re-enter the Fringe...');
       } else {
         DocumentManager.updateElementTextByElementName(this.HIGH_SCORE_ENTITY_INFO_TEXT_ID, '');
-        DocumentManager.updateElementTextByElementName(this.HIGH_SCORE_CURRENT_GAME_INFO_TEXT_ID, '');
-      }
-    }
-
-    if (newScreen === Screen.BESTIARY_SCREEN) {
-      if (!GameManager.isGameRunning()) {
-        DocumentManager.updateElementTextByElementName(this.BESTIARY_HELP_TEXT_ID, 'To see help and information press the Command key...');
-      } else {
-        DocumentManager.updateElementTextByElementName(this.BESTIARY_HELP_TEXT_ID, '');
+        DocumentManager.updateElementTextByElementName(this.HIGH_SCORE_CURRENT_GAME_INFO_TEXT_ID, 'Release Ctrl to return...');
       }
     }
   }
