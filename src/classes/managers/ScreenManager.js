@@ -53,6 +53,11 @@ export class ScreenManager {
       case Screen.ENTER_HIGHSCORE_SCREEN:
         break;
       case Screen.DISPLAY_HIGHSCORES_SCREEN:
+        if (key === Key.CTRL && !GameManager.isGameRunning()) {
+          this.switchToScreen(Screen.GAMEPLAY_SCREEN);
+        } else if (key === Key.SHIFT && !GameManager.isGameRunning()) {
+          this.switchToScreen(Screen.BESTIARY_SCREEN);
+        }
         break;
       case Screen.BESTIARY_SCREEN:
         break;
@@ -87,6 +92,8 @@ export class ScreenManager {
         if (key === Key.SHIFT && GameManager.isGameRunning()) {
           this.switchToScreen(Screen.GAMEPLAY_SCREEN);
           GameManager.toggleGamePaused(true);
+        } else if (key === Key.SHIFT && !GameManager.isGameRunning()) {
+          this.switchToScreen(Screen.DISPLAY_HIGHSCORES_SCREEN);
         }
         break;
       case Screen.HELP_SCREEN:
