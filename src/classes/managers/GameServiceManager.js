@@ -41,4 +41,12 @@ export class GameServiceManager {
     static stopPlayerMovement() {
         this.gameManager.stopPlayerMovement();
     }
+
+    static setupGame() {
+        this.gameManager.setupGame();
+    }
+
+    static isGameRunning() {
+        this.gameManager.isGameRunning();
+    }
 }

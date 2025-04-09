@@ -1,3 +1,4 @@
+import { GameConfig } from "../../config/GameConfig.js";
 import { KillableAiGameObject } from "../KillableAiGameObject.js";
 import { Layer } from "../managers/Layer.js";
 import { MediaManager } from "../managers/MediaManager.js";
@@ -6,9 +7,9 @@ import { PufferProjectile } from "../projectiles/PufferProjectile.js";
 
 export class Puffer extends KillableAiGameObject {
     static MAX_SPEED = 1;
-    
+
     constructor(xLocation, yLocation, velocityX, velocityY, angle, playerShip) {
-        super(xLocation, yLocation, Layer.PUFFER, 42, 49, angle, MediaManager.Sprites.Puffer, velocityX, velocityY, 14, 10, playerShip, 60, 200, 40);
+        super(xLocation, yLocation, Layer.PUFFER, 42, 49, angle, MediaManager.Sprites.Puffer, velocityX, velocityY, 14, 10, playerShip, GameConfig.PUFFER_COLLISION_DAMAGE, GameConfig.PUFFER_HEALTH, GameConfig.PUFFER_POINT_VALUE);
 
         this.TURN_ABILITY = 0.015;
         this.ACCELERATION = 0.1;
@@ -20,6 +21,8 @@ export class Puffer extends KillableAiGameObject {
         this.MAX_FIRE_RATE = 3 * 60;
         this.MIN_FIRE_RATE = 0.3 * 60;
         this.PROJECTILE_SPEED = 10;
+        this.DISTANCE_WILL_SHOOT_AT_PLAYER_SHIP = 550;
+        this.ANGLE_WILL_SHOOT_AT_PLAYER_SHIP = Math.PI / 16;
 
         // set the initial sprite x offset based on the angle given
         this.setSpriteXOffsetForAngle();
@@ -40,7 +43,7 @@ export class Puffer extends KillableAiGameObject {
         // % (2 * Math.PI): Takes whatever the result of the calculation with the above values is and makes it between 0 (inclusive) and 2 * Math.PI (exclusive).
         // FUTURE TODO: Due to the isometric sprite view there are some instances where the angles don't line up great with the sprite (barely). So in the future might want to look into how to make the angles match up with the sprite a little better.
         let frameAngle = ((Math.PI / 2) + this.ROTATION_AMOUNT / 2 + this.angle) % (2 * Math.PI);
-        let frame = Math.floor(frameAngle/this.ROTATION_AMOUNT);
+        let frame = Math.floor(frameAngle / this.ROTATION_AMOUNT);
 
         this.spriteXOffset = this.width * frame;
     }
@@ -48,38 +51,41 @@ export class Puffer extends KillableAiGameObject {
     updateState() {
         let angleDiff = this.angleDiffTo(this.playerShipReference);
 
-        // only move the ship angle toward player as fast as the turn ability will allow.
-        if (angleDiff > 0) {
-            if (this.TURN_ABILITY > angleDiff) {
-                // only turn angle difference
-                this.angle += angleDiff;
-            } else { 
-                // turn maximum amount possible
-                this.angle += this.TURN_ABILITY;
+        // Only turn towards and start tracking the player if the player is close enough
+        if (this.relativePositionTo(this.playerShipReference).magnitude() < GameConfig.PUFFER_TRACKING_DISTANCE) {
+            // only move the ship angle toward player as fast as the turn ability will allow.
+            if (angleDiff > 0) {
+                if (this.TURN_ABILITY > angleDiff) {
+                    // only turn angle difference
+                    this.angle += angleDiff;
+                } else {
+                    // turn maximum amount possible
+                    this.angle += this.TURN_ABILITY;
+                }
+            } else {
+                // Will handle if angleDiff = 0 since this next statement will be guaranteed to be true so we will add angleDiff to the angle, which would be 0 (meaning the angle would not change)
+                if (-1 * this.TURN_ABILITY < angleDiff) {
+                    // only turn angle difference
+                    // Note that the angle different here is already negative
+                    this.angle += angleDiff;
+                } else {
+                    // turn maximum amount possible
+                    this.angle += -1 * this.TURN_ABILITY;
+                }
             }
-        } else {
-            // Will handle if angleDiff = 0 since this next statement will be guaranteed to be true so we will add angleDiff to the angle, which would be 0 (meaning the angle would not change)
-            if (-1 * this.TURN_ABILITY < angleDiff) {
-                // only turn angle difference
-                // Note that the angle different here is already negative
-                this.angle += angleDiff;
-            } else { 
-                // turn maximum amount possible
-                this.angle += -1 * this.TURN_ABILITY;
+
+            // Keep angle between 0 and 2 * Math.PI
+            if (this.angle > 2 * Math.PI) {
+                this.angle -= 2 * Math.PI;
+            } else if (this.angle < 0) {
+                this.angle += 2 * Math.PI;
             }
-        }
+            if (this.angle > 2 * Math.PI || this.angle < 0) {
+                this.error(`Puffer angle ${this.angle} was outside of the expected range`);
+            }
 
-        // Keep angle between 0 and 2 * Math.PI
-        if (this.angle > 2 * Math.PI) {
-            this.angle -= 2 * Math.PI;
-        } else if (this.angle < 0) {
-            this.angle += 2 * Math.PI;
+            this.setSpriteXOffsetForAngle();
         }
-        if (this.angle > 2 * Math.PI || this.angle < 0) {
-            this.error(`Puffer angle ${this.angle} was outside of the expected range`);
-        }
-
-        this.setSpriteXOffsetForAngle();
 
         // The Puffer moves so slow that it feels better when it is always calculating acceleration, despite direction
         // This can result in the Puffer obriting the player but since it is so slow it only really happens when the player isn't moving
@@ -90,15 +96,16 @@ export class Puffer extends KillableAiGameObject {
 
         this.numberOfTicksSinceShooting++;
 
-        if (this.numberOfTicksSinceShooting > this.shootingRechargeTime) {
-          if (angleDiff < 0.85 && angleDiff > -0.85) {
+        if (this.numberOfTicksSinceShooting > this.shootingRechargeTime
+                && angleDiff < this.ANGLE_WILL_SHOOT_AT_PLAYER_SHIP
+                && angleDiff > -this.ANGLE_WILL_SHOOT_AT_PLAYER_SHIP
+                && this.relativePositionTo(this.playerShipReference).magnitude() < this.DISTANCE_WILL_SHOOT_AT_PLAYER_SHIP) {
             let newProjectilePosition = this.getNewProjectilePosition();
             let newProjectileVelocity = this.getNewProjectileVelocity(this.PROJECTILE_SPEED);
             let newPufferProjectile = new PufferProjectile(newProjectilePosition.x, newProjectilePosition.y, newProjectileVelocity.x, newProjectileVelocity.y);
             ObjectManager.addObject(newPufferProjectile, true);
             this.numberOfTicksSinceShooting = 0;
             this.shootingRechargeTime = this.getRechargeTimeForShooting();
-          }
         }
     }
 }

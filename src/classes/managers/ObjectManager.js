@@ -10,6 +10,14 @@ export class ObjectManager {
     static projectileObjects = {};
     static nonProjectileObjects = {};
 
+    static resetForNewGame() {
+        this.nextId = 1;
+        this.objects = [];
+        this.collidables = []
+        this.projectileObjects = {};
+        this.nonProjectileObjects = {};
+    }
+
     static addObject(object, collidable = true) {
         const nextId = this.getNextObjectId();
         object.objectId = nextId;

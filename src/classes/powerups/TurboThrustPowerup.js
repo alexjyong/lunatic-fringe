@@ -1,10 +1,11 @@
+import { GameConfig } from "../../config/GameConfig.js";
 import { Layer } from "../managers/Layer.js";
 import { MediaManager } from "../managers/MediaManager.js";
 import { StoredDurationPowerup } from "./StoredDurationPowerup.js";
 
 export class TurboThrustPowerup extends StoredDurationPowerup {
     constructor(xLocation, yLocation) {
-        super(xLocation, yLocation, Layer.STORED_POWERUP, 15, 16, MediaManager.Sprites.TurboThrust, 8, 60 * 2, 'turboThrustAvailable', 'B');
+        super(xLocation, yLocation, Layer.STORED_POWERUP, 15, 16, MediaManager.Sprites.TurboThrust, 8, 60 * GameConfig.TURBO_BOOST_DURATION_IN_SECONDS, 'turboThrustAvailable', 'B');
     }
 
     activate(playerShip) {
@@ -14,8 +15,11 @@ export class TurboThrustPowerup extends StoredDurationPowerup {
         playerShip.turboThrustActive = true;
     }
 
-    deactivate(playerShip) {
-        MediaManager.Audio.SpawnAndUpgradeExpired.play();
+    deactivate(playerShip, playSoundsAndDisplayMessages) {
+        if (playSoundsAndDisplayMessages) {
+            MediaManager.Audio.SpawnAndUpgradeExpired.play();
+        }
+        
         document.getElementById(this.documentElementId).style.visibility = "hidden";
         playerShip.velocityX = playerShip.velocityX * playerShip.SPEED_AFTER_TURBO_THRUST / playerShip.SPEED_OF_TURBO_THRUST;
         playerShip.velocityY = playerShip.velocityY * playerShip.SPEED_AFTER_TURBO_THRUST / playerShip.SPEED_OF_TURBO_THRUST;

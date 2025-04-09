@@ -11,7 +11,7 @@ export class QuadBlaster extends KillableAiGameObject {
     constructor(xLocation, yLocation, velocityX, velocityY, playerShip) {
         // According to gameplay footage killing a QuadBlaster was worth 50 points
         // QuadBlaster does not change directions, so starting angle can just be zero since it always starts in the same state
-        super(xLocation, yLocation, Layer.QUAD_BLASTER, 40, 50, 0, MediaManager.Sprites.QuadBlaster, velocityX, velocityY, 16, 8, playerShip, 60, 160, 50);
+        super(xLocation, yLocation, Layer.QUAD_BLASTER, 40, 50, 0, MediaManager.Sprites.QuadBlaster, velocityX, velocityY, 16, 8, playerShip, GameConfig.QUADBLASTER_COLLISION_DAMAGE, GameConfig.QUADBLASTER_HEALTH, GameConfig.QUADBLASTER_POINT_VALUE);
 
         // For some reason the QuadBlaster sprite has an offset of 10 pixels on the spritesheet, so account for that with a constant here
         this.BASE_SPRITE_X_OFFEST = 10;
@@ -69,25 +69,25 @@ export class QuadBlaster extends KillableAiGameObject {
         return closest;
     }
 
-    draw(context) {
-        super.draw(context);
+    draw(canvasContext, effectCanvasContext, percentageVisible) {
+        super.draw(canvasContext, effectCanvasContext, percentageVisible);
         // Drawing means we are in the scene
         this.inScene = true;
 
         // Draw additional debug arc for which barrel is closest to the player
         if (GameConfig.debug) {
             let barrelAngle = this.getAngleOfBarrelTowardPlayer();
-            context.beginPath();
-            context.strokeStyle = "green";
-            context.moveTo(this.x, this.y);
-            context.lineTo(this.x + Math.cos(barrelAngle) * this.collisionRadius * 2, this.y + Math.sin(barrelAngle) * this.collisionRadius * 2);
-            context.stroke();
+            canvasContext.beginPath();
+            canvasContext.strokeStyle = "green";
+            canvasContext.moveTo(this.x, this.y);
+            canvasContext.lineTo(this.x + Math.cos(barrelAngle) * this.collisionRadius * 2, this.y + Math.sin(barrelAngle) * this.collisionRadius * 2);
+            canvasContext.stroke();
 
-            context.beginPath();
-            context.strokeStyle = "red";
-            context.arc(this.x, this.y, this.collisionRadius + 2, barrelAngle-0.775, barrelAngle+0.775);
-            context.lineWidth = 2;
-            context.stroke();
+            canvasContext.beginPath();
+            canvasContext.strokeStyle = "red";
+            canvasContext.arc(this.x, this.y, this.collisionRadius + 2, barrelAngle-0.775, barrelAngle+0.775);
+            canvasContext.lineWidth = 2;
+            canvasContext.stroke();
         }
     }
 
