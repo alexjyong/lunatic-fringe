@@ -1,6 +1,7 @@
 import { GameManager } from './classes/managers/GameManager.js';
 import { KeyStateManager } from './classes/managers/KeyManager.js';
 import { MediaManager } from './classes/managers/MediaManager.js';
+import { GamePadManager } from "./classes/managers/GamePadManager.js"
 
 window.onload = function Initialize() {
     let version = "5.0";
@@ -8,6 +9,7 @@ window.onload = function Initialize() {
 
     // Initialize the media (audio/sprites)
     MediaManager.init();
+    new GamePadManager();
 
     // This is simpler than parsing the query string manually. The better regex solutions gave JSLint hell so I removed them.
     if (window.location.href.indexOf("debug=1") !== -1) {

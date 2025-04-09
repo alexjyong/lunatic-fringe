@@ -3,7 +3,6 @@ import { DocumentManager } from "./DocumentManager.js";
 import { GameManager } from "./GameManager.js";
 import { Key } from "./KeyManager.js";
 import { LevelManager } from "./LevelManager.js";
-import { GamePadManager } from "./GamePadManager.js"
 
 // Note: These match the id values in the html file
 export const Screen = {

@@ -433,3 +433,11 @@ Enter New High Score Screen
     background: transparent;
     border: none;
 }
+
+#HudGamePad {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 9999;
+  pointer-events: auto;
+}
