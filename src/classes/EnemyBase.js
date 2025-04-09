@@ -18,7 +18,7 @@ export class EnemyBase extends AiGameObject {
         /**
          * The width, height, angle (which doesn't really apply), sprite, velocityX, velocityY, collisionRadius, and mass are always the same for an EnemyBase.
          */
-        super(xLocation, yLocation, Layer.ENEMY_BASE, 62, 60, 0, MediaManager.Sprites.EnemyBase, 0, 0, 28, 100000000, playerShip, 200);
+        super(xLocation, yLocation, Layer.ENEMY_BASE, 62, 60, 0, MediaManager.Sprites.EnemyBase, 0, 0, 28, 100000000, playerShip, GameConfig.ENEMY_BASE_COLLISION_DAMAGE);
 
         this.ticksUntilNextEnemySpawn = 60 * 5;
         this.numberOfTicksUntilCanShootAgain = 0;
@@ -29,15 +29,15 @@ export class EnemyBase extends AiGameObject {
         this.FIRE_RATE = 3 * 60;
     }
 
-    draw(context) {
-        super.draw(context);
+    draw(canvasContext, effectCanvasContext, percentageVisible) {
+        super.draw(canvasContext, effectCanvasContext, percentageVisible);
 
         if (GameConfig.debug) {
             // Draw circle where enemy base will fire at the player
-            context.beginPath();
-            context.strokeStyle = "red";
-            context.arc(this.x, this.y, this.DISTANCE_WILL_FIRE_AT_PLAYER_SHIP, 0, Math.PI * 2);
-            context.stroke();
+            canvasContext.beginPath();
+            canvasContext.strokeStyle = "red";
+            canvasContext.arc(this.x, this.y, this.DISTANCE_WILL_FIRE_AT_PLAYER_SHIP, 0, Math.PI * 2);
+            canvasContext.stroke();
         }
     }
 
@@ -49,10 +49,10 @@ export class EnemyBase extends AiGameObject {
     updateState() {
         this.ticksUntilNextEnemySpawn--;
         this.numberOfTicksUntilCanShootAgain--;
-
-        if (this.ticksUntilNextEnemySpawn <= 0 && LevelManager.spawnStack.length !== 0) {
+        
+        if (this.ticksUntilNextEnemySpawn <= 0 && LevelManager.numberOfEnemiesAlive < LevelManager.maximumEnemiesInTheWorld) {
             // Spawn in another enemy
-            let enemyToSpawn = LevelManager.spawnStack.pop();
+            let enemyToSpawn = LevelManager.getEnemyToSpawn();
 
             // Start at a random point somewhere inside of the enemy base. This isn't super important but a slightly random location
             // could allow for some variability in the movement of enemies when they first spawn.

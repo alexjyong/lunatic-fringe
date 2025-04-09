@@ -13,6 +13,7 @@ Light reading can be found on Wikipedia's [After Dark](https://en.wikipedia.org/
 
 ## Code base history
 Original foundation was written by [James Carnley](http://jamescarnley.com). Google Code [Project](https://code.google.com/p/lunatic-fringe/).
+Large contributions by [schwal10](https://github.com/schwal10) 
 
 ## Usage
 NOTE: With the refactor that separated out the code into multiple files, it is no longer possible to just open up index.html in a browser due to being blocked by CORS policy. So until I think of a way to handle this to potentially get around that without requiring that you turn off blocking for CORS violations, the best way to run this locally is to run a local server to host the files. There are multiple ways you could do this, but some of the easiest ways are probably as follows:
@@ -35,7 +36,7 @@ NOTE: With the refactor that separated out the code into multiple files, it is n
 * Right Arrow key: Turn right
 * Spacebar: Shoot
 * CapsLock: Pause/Unpause
-* V: Use invulnerability powerup (if available)
+* V: Use power shield powerup (if available)
 * B: Use turbo boost powerup (if available)
 
 ## Hey the original game had X!

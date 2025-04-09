@@ -52,38 +52,52 @@ export class InteractableGameObject extends GameObject {
      * 
      * @param {*} context The drawing context
      */
-    draw(context) {
+    draw(canvasContext, effectCanvasContext, percentageVisible) {
         // handle the drawing that is common between all objects
 
-        // Sprite drawing
-        // There is no rotation in this drawing since images are not actually rotated, the rotation comes from the sprite sheets
-        context.drawImage(this.sprite, this.spriteXOffset, this.spriteYOffset, this.width, this.height, this.x - this.width / 2, this.y - this.height / 2 - this.imageYOffset, this.width, this.height);
+        // There are two percentage visible attributes, to get total percentage visible multiple the two values. Ex. 90% x 90% should give a final percentage visible of 81%.
+        // percentageVisible: percentage visible based on how damaged the system is (scanner or radar)
+        // this.percentVisible: Used to apply percent visible effect to specific objects. For example, fading in the hammerhead hammer as it starts to respawn
+        const totalPercentageVisible = percentageVisible * this.percentVisible / 100;
 
-        // Draw image static effect. Only draw is percentVisible is not 100 percent, as no reason to read image data if we won't be causing a static effect
-        if (this.percentVisible !== 100) {
-            GameManager.areaStaticEffect(context, this.percentVisible, this.x - this.width / 2, this.y - this.height / 2 - this.imageYOffset, this.width, this.height);
+        // Only draw object if visible. However, even if not visible, still draw debug information.
+        if (totalPercentageVisible > 0) {
+            // Draw object to the effect canvas, so that any effects can be applied to the sprite before it is drawn on the main canvas
+            effectCanvasContext.drawImage(this.sprite, this.spriteXOffset, this.spriteYOffset, this.width, this.height, this.x - this.width / 2, this.y - this.height / 2 - this.imageYOffset, this.width, this.height);
+
+            // Draw image static effect. Only draw is percentage visible is not 100 percent, as no reason to read image data if we won't be causing a static effect
+            if (this.percentVisible !== 100 || percentageVisible !== 100) {
+                GameManager.applyStaticEffectToCanvas(effectCanvasContext, totalPercentageVisible, this.x - this.width / 2, this.y - this.height / 2 - this.imageYOffset, this.width, this.height)
+            }
+
+            // Sprite drawing
+            // There is no rotation in this drawing since images are not actually rotated, the rotation comes from the sprite sheets
+            // Object is drawn on the main canvas using the end result in the temp canvas
+            canvasContext.drawImage(effectCanvasContext.canvas, 0, 0);
+            // Clear the drawing off of the effect canvas to prevent interference with the next drawing
+            effectCanvasContext.clearRect(this.x - this.width / 2, this.y - this.height / 2 - this.imageYOffset, this.width, this.height);
         }
 
         // Common debug drawing
         if (GameConfig.debug) {
             // Draw collision circle
-            context.beginPath();
-            context.strokeStyle = "blue";
-            context.arc(this.getCollisionCenterX(), this.getCollisionCenterY(), this.collisionRadius, 0, Math.PI * 2);
-            context.stroke();
+            canvasContext.beginPath();
+            canvasContext.strokeStyle = "blue";
+            canvasContext.arc(this.getCollisionCenterX(), this.getCollisionCenterY(), this.collisionRadius, 0, Math.PI * 2);
+            canvasContext.stroke();
 
             // Draw object angle
-            context.beginPath();
-            context.strokeStyle = "blue";
-            context.moveTo(this.x, this.y);
+            canvasContext.beginPath();
+            canvasContext.strokeStyle = "blue";
+            canvasContext.moveTo(this.x, this.y);
             // console.log("drawing line");
             if (this.layer === Layer.PLAYER) {
                 // Player ship forces/angles are opposite everyone else
-                context.lineTo(this.x + -Math.cos(this.angle) * this.collisionRadius * 2, this.y + -Math.sin(this.angle) * this.collisionRadius * 2);
+                canvasContext.lineTo(this.x + -Math.cos(this.angle) * this.collisionRadius * 2, this.y + -Math.sin(this.angle) * this.collisionRadius * 2);
             } else {
-                context.lineTo(this.x + Math.cos(this.angle) * this.collisionRadius * 2, this.y + Math.sin(this.angle) * this.collisionRadius * 2);
+                canvasContext.lineTo(this.x + Math.cos(this.angle) * this.collisionRadius * 2, this.y + Math.sin(this.angle) * this.collisionRadius * 2);
             }
-            context.stroke();
+            canvasContext.stroke();
         }
     }
 
@@ -172,9 +186,29 @@ export class InteractableGameObject extends GameObject {
         this.velocityY = currentVelocity.y;
     }
 
+    /**
+     * Calculates the relative position from this object to another game object. Always finds
+     * the shortest vector and accounts for world wrapping.
+     * 
+     * @param {*} object Other game object to get the relative position to
+     * @returns Vector with x y distance to object
+     */
     relativePositionTo(object) {
+        const fullWorldSize = GameConfig.HALF_OF_WORLD_SIZE * 2;
+
         let x = object.x - this.x;
+        if (x < -GameConfig.HALF_OF_WORLD_SIZE) {
+            x += fullWorldSize;
+        } else if (x > GameConfig.HALF_OF_WORLD_SIZE) {
+            x -= fullWorldSize;
+        }
         let y = object.y - this.y;
+        if (y < -GameConfig.HALF_OF_WORLD_SIZE) {
+            y += fullWorldSize;
+        } else if (y > GameConfig.HALF_OF_WORLD_SIZE) {
+            y -= fullWorldSize;
+        }
+
         return new Vector(x, y);
     }
 

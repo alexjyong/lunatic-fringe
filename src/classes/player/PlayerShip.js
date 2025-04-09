@@ -1,13 +1,17 @@
+import { GameConfig } from "../../config/GameConfig.js";
 import { Vector } from "../../utility/Vector.js";
 import { InteractableGameObject } from "../InteractableGameObject.js";
 import { CollisionManager } from "../managers/CollisionManager.js";
 import { DocumentManager } from "../managers/DocumentManager.js";
 import { GameBound } from "../managers/GameBound.js";
 import { GameServiceManager } from "../managers/GameServiceManager.js";
-import { KeyStateManager } from "../managers/KeyManager.js";
+import { Key, KeyStateManager } from "../managers/KeyManager.js";
 import { Layer } from "../managers/Layer.js";
+import { LevelManager } from "../managers/LevelManager.js";
 import { MediaManager } from "../managers/MediaManager.js";
 import { ObjectManager } from "../managers/ObjectManager.js";
+import { PhotonLargePowerup } from "../powerups/PhotonLargePowerup.js";
+import { SpreadShotPowerup } from "../powerups/SpreadShotPowerup.js";
 import { PhotonLarge } from "../projectiles/PhotonLarge.js";
 import { PhotonMedium } from "../projectiles/PhotonMedium.js";
 import { PhotonSmall } from "../projectiles/PhotonSmall.js";
@@ -16,9 +20,9 @@ import { PowerupStateManager } from "./PowerupStateManager.js";
 
 export class PlayerShip extends InteractableGameObject {
     // Use static values here since the 'this' context is not the Player Ship object in the low fuel event listener, so just pull the values off of the player ship class statically.
-    static LOW_FUEL_SOUND_PLAY_COUNT_MAX = 3;
+    static LOW_FUEL_SOUND_PLAY_COUNT_MAX = 1;
     static lowFuelSoundPlayCount = 1;
-    
+
     static MAX_SPEED = 12;
 
     constructor(xLocation, yLocation, velocityX, velocityY) {
@@ -30,17 +34,21 @@ export class PlayerShip extends InteractableGameObject {
         this.imageYOffset = 2;
 
         this.ACCELERATION = 0.1;
-        this.damageCausedByCollision = 40;
+        this.damageCausedByCollision = GameConfig.PLAYER_COLLISION_DAMAGE;
 
         this.MAXIMUM_FUEL = 1500;
         this.fuel = this.MAXIMUM_FUEL;
-        this.FUEL_SOUND_THRESHOLD = this.MAXIMUM_FUEL / 5;
+        this.HALF_FUEL_REMAINING = this.MAXIMUM_FUEL / 2;
+        this.QUARTER_FUEL_REMAINING = this.MAXIMUM_FUEL / 4;
         this.updateDocumentFuel();
         this.MAXIMUM_SPARE_PARTS = 100;
         this.spareParts = this.MAXIMUM_SPARE_PARTS
         this.updateDocumentSpareParts();
 
         this.playerSystemsManager = new PlayerSystemsManager();
+        // Used to save and restore fuel and spare parts during and after power shield powerup usage
+        this.savedFuel = 0;
+        this.savedSpareParts = 0;
 
         this.NUMBER_OF_ANIMATION_FRAMES = 32;
         this.ROTATION_AMOUNT = (2 * Math.PI) / this.NUMBER_OF_ANIMATION_FRAMES;
@@ -49,9 +57,10 @@ export class PlayerShip extends InteractableGameObject {
         this.isAccelerating = false;
         this.BASE_DOCKING_OFFSET = 3; // The value offset to use so that the player ship is more centered with the base when docked.
         this.atBase = false;
-        this.isLowFuel = false;
+        this.isLowFuelHalfLeft = false;
+        this.isLowFuelQuarterLeft = false;
         // Setup the repeating of the low fuel sound
-        MediaManager.Audio.LowFuel.addEventListener('ended', function() {
+        MediaManager.Audio.LowFuel.addEventListener('ended', function () {
             if (PlayerShip.lowFuelSoundPlayCount < PlayerShip.LOW_FUEL_SOUND_PLAY_COUNT_MAX) {
                 MediaManager.Audio.LowFuel.play();
                 PlayerShip.lowFuelSoundPlayCount++;
@@ -73,39 +82,44 @@ export class PlayerShip extends InteractableGameObject {
             left: 0,
             right: 0,
             shooting: 0,
-			repair: 0,
-			death: 0,
+            repair: 0,
+            death: 0,
             healFromSparePart: 0,
             takenDamage: 0,
             engineCheck: 0,
-            turnJetsCheck: 0
-		}
+            turnJetsCheck: 0,
+            respawn: 0
+        }
 
-        this.score = 0;
-        this.updateDocumentScore();
         this.powerupStateManager = new PowerupStateManager(this);
         // Possible bullet states
-		this.BULLETS = {
-			SMALL: 1,
-			SPREADSHOT: 2,
-			LARGE: 3
-		};
+        this.BULLETS = {
+            SMALL: 1,
+            SPREADSHOT: 2,
+            LARGE: 3
+        };
         this.bulletState = this.BULLETS.SMALL;
-		this.DEFAULT_SHOOTING_SPEED = 13; // Shooting speed without powerups and with normal bullets
-		this.bulletShootingSpeed = this.DEFAULT_SHOOTING_SPEED;
+        this.bulletShootingSpeed = GameConfig.DEFAULT_SHOOTING_SPEED;
         this.PROJECTILE_SPEED = 10;
-		this.scoreMultiplier = 1;
-		// The speed you got at when using the turbo thrust powerup
-		this.SPEED_OF_TURBO_THRUST = 2 * PlayerShip.MAX_SPEED;
-		// What to set the speed of the ship to after turbo thrusting so you get a little "drifting" after the boost
-		this.SPEED_AFTER_TURBO_THRUST = 1;
+        this.scoreMultiplier = 1;
+        // The speed you got at when using the turbo thrust powerup
+        this.SPEED_OF_TURBO_THRUST = 2 * PlayerShip.MAX_SPEED;
+        // What to set the speed of the ship to after turbo thrusting so you get a little "drifting" after the boost
+        this.SPEED_AFTER_TURBO_THRUST = 1;
 
         this.turboThrustActive = false;
-        this.invulnerabilityActive = false;
+        this.powerShieldActive = false;
 
         // Player starts with 3 lives
         this.lives = 3;
         this.updateLivesDocument();
+
+        // Used for fading in only the ship when respawning after death. This is separate from the effect caused by a damage scanner.
+        this.percentVisible = 0;
+
+        this.nextScoreValueForExtraLife = GameConfig.POINT_INTERVAL_VALUE_FOR_EXTRA_LIFE;
+
+        this.isDead = false;
     }
 
     // Need a function that is separate from other objects since the angles for the player are opposite the angles for everything else
@@ -114,15 +128,20 @@ export class PlayerShip extends InteractableGameObject {
     }
 
     processInput() {
-        this.isAccelerating = false;
-
         // So we need to do this here since some of the input processing relies on the number of frames since (like turning or shooting). Could probably be in its own function but will just be left here for now.
         for (let i in this.numFramesSince) {
             if (this.numFramesSince.hasOwnProperty(i)) {
                 this.numFramesSince[i] += 1;
             }
         }
-        
+
+        if (this.isDead) {
+            // Do not process any input when dead
+            return;
+        }
+
+        this.isAccelerating = false;
+
         this.powerupStateManager.updateDurations();
 
         if (this.numFramesSince.engineCheck > this.FRAMES_BETWEEN_ENGINE_CHECK) {
@@ -131,9 +150,11 @@ export class PlayerShip extends InteractableGameObject {
             this.enginesFunctioning = !failedToUseEngines;
             this.numFramesSince.engineCheck = 0;
         }
-        if (KeyStateManager.isDown(KeyStateManager.UP) && this.fuel > 0 && !this.isTurboThrusting() && this.enginesFunctioning) {
+        if (KeyStateManager.isDown(Key.UP) && this.fuel > 0 && !this.isTurboThrusting() && this.enginesFunctioning) {
             this.isAccelerating = true;
-            this.updateFuel(-1);
+            if (!this.powerShieldActive) {
+                this.updateFuel(-1);
+            }
             this.calculateAcceleration();
             this.spriteYOffset = this.height;
         } else {
@@ -150,8 +171,8 @@ export class PlayerShip extends InteractableGameObject {
             this.turnJetsFunctioning = !failedToUseTurnJets;
             this.numFramesSince.turnJetsCheck = 0;
         }
-        let shouldTurnLeft = (this.turnJetsFunctioning && KeyStateManager.isDown(KeyStateManager.LEFT)) || (this.turnJetsMalfunctioningDirection === this.TURN_JET_MALFUNCTIONING_DIRECTIONS.LEFT && !this.turnJetsFunctioning)
-        if (shouldTurnLeft && this.numFramesSince.left >= 3 && !this.isTurboThrusting() ) {
+        let shouldTurnLeft = (this.turnJetsFunctioning && KeyStateManager.isDown(Key.LEFT)) || (this.turnJetsMalfunctioningDirection === this.TURN_JET_MALFUNCTIONING_DIRECTIONS.LEFT && !this.turnJetsFunctioning)
+        if (shouldTurnLeft && this.numFramesSince.left >= 3 && !this.isTurboThrusting()) {
             this.numFramesSince.left = 0;
             this.spriteXOffset -= this.width;
             this.angle -= this.ROTATION_AMOUNT;
@@ -160,7 +181,7 @@ export class PlayerShip extends InteractableGameObject {
             }
         }
 
-        let shouldTurnRight = (this.turnJetsFunctioning && KeyStateManager.isDown(KeyStateManager.RIGHT)) || (this.turnJetsMalfunctioningDirection === this.TURN_JET_MALFUNCTIONING_DIRECTIONS.RIGHT && !this.turnJetsFunctioning)
+        let shouldTurnRight = (this.turnJetsFunctioning && KeyStateManager.isDown(Key.RIGHT)) || (this.turnJetsMalfunctioningDirection === this.TURN_JET_MALFUNCTIONING_DIRECTIONS.RIGHT && !this.turnJetsFunctioning)
         if (shouldTurnRight && this.numFramesSince.right >= 3 && !this.isTurboThrusting()) {
             this.numFramesSince.right = 0;
             this.spriteXOffset += this.width;
@@ -170,8 +191,8 @@ export class PlayerShip extends InteractableGameObject {
             }
         }
 
-        if (KeyStateManager.isDown(KeyStateManager.SPACE) && !this.atBase && !this.isTurboThrusting()) {
-            if (this.numFramesSince.shooting >= this.bulletShootingSpeed) { // 13 matches up best with the original game's rate of fire at 60fps
+        if (KeyStateManager.isDown(Key.SPACE) && !this.atBase && !this.isTurboThrusting()) {
+            if (this.numFramesSince.shooting >= this.bulletShootingSpeed) {
                 // Check to see if ship is allowed to fire based on percentage the guns are operating at. Note that this is inside the frame checking logic since
                 // even you are not allowed to fire a bullet due to inoperable guns it should still reset the numFramesSince count
                 let failedToFireBullet = Math.random() < .9 * (100 - this.playerSystemsManager.gunsCondition.operatingPercentage) / 100;
@@ -180,56 +201,67 @@ export class PlayerShip extends InteractableGameObject {
                     let photonX = this.x + (-Math.cos(this.angle) * this.collisionRadius);
                     let photonY = this.y + (-Math.sin(this.angle) * this.collisionRadius);
                     let photonVelocity = this.getNewProjectileVelocity(this.PROJECTILE_SPEED);
-                    if (this.bulletState == this.BULLETS.SMALL) {
-                        photon = new PhotonSmall(photonX, photonY, photonVelocity.x, photonVelocity.y);
-                        MediaManager.Audio.PhotonSmall.play();
-                    } else if (this.bulletState == this.BULLETS.LARGE) {
+                    const largePhotonPowerupConstructorName = PhotonLargePowerup.getClassName();
+                    const spreadShotPowerupConstructorName = SpreadShotPowerup.getClassName()
+
+                    // Determine the main photon to be fired
+                    if (this.powerupStateManager.isBulletPowerupActive(largePhotonPowerupConstructorName)) {
                         photon = new PhotonLarge(photonX, photonY, photonVelocity.x, photonVelocity.y);
                         MediaManager.Audio.PhotonBig.play();
-                    } else if (this.bulletState == this.BULLETS.SPREADSHOT) {
-                        let photonVelocity2 = this.getNewProjectileVelocity(this.PROJECTILE_SPEED, (Math.PI / 16));
-                        let photonVelocity3 = this.getNewProjectileVelocity(this.PROJECTILE_SPEED, -(Math.PI / 16));
+                        this.powerupStateManager.bulletPowerupShotUsed(largePhotonPowerupConstructorName);
+                    } else if (this.powerupStateManager.isBulletPowerupActive(spreadShotPowerupConstructorName)) {
                         photon = new PhotonMedium(photonX, photonY, photonVelocity.x, photonVelocity.y);
-                        let photon2 = new PhotonMedium(photonX, photonY, photonVelocity2.x, photonVelocity2.y);
-                        let photon3 = new PhotonMedium(photonX, photonY, photonVelocity3.x, photonVelocity3.y);
-                        // FUTURE TODO: investigate why photon 2 falls behind the other photons when shooting sometimes. This appears to also be a problem with the old code.
-                        ObjectManager.addObject(photon2, true);
-                        ObjectManager.addObject(photon3, true);
                         MediaManager.Audio.PhotonSpread.play();
+                        // Spreadshot use handled in if statement further down since both large and spreadshot powerups can be active at the same time
+                    } else {
+                        photon = new PhotonSmall(photonX, photonY, photonVelocity.x, photonVelocity.y);
+                        MediaManager.Audio.PhotonSmall.play();
                     }
                     ObjectManager.addObject(photon, true);
+
+                    // If spread shot is active, add the two extra spread shot bullets even if large photon powerup is active
+                    if (this.powerupStateManager.isBulletPowerupActive(spreadShotPowerupConstructorName)) {
+                        let photonVelocity2 = this.getNewProjectileVelocity(this.PROJECTILE_SPEED, (Math.PI / 16));
+                        let photonVelocity3 = this.getNewProjectileVelocity(this.PROJECTILE_SPEED, -(Math.PI / 16));
+                        // FUTURE TODO: investigate why photon 2 falls behind the other photons when shooting sometimes. This appears to also be a problem with the old code. Note: This is an old todo, maybe this no longer happens?
+                        let photon2 = new PhotonMedium(photonX, photonY, photonVelocity2.x, photonVelocity2.y);
+                        let photon3 = new PhotonMedium(photonX, photonY, photonVelocity3.x, photonVelocity3.y);
+                        ObjectManager.addObject(photon2, true);
+                        ObjectManager.addObject(photon3, true);
+                        this.powerupStateManager.bulletPowerupShotUsed(spreadShotPowerupConstructorName);
+                    }
                 }
-            
+
                 this.numFramesSince.shooting = 0;
             }
         }
-        
-        if (KeyStateManager.isDown(KeyStateManager.V)) {
+
+        if (KeyStateManager.isDown(Key.V)) {
             this.powerupStateManager.activateStoredPowerup('V')
         }
-        
-        if (KeyStateManager.isDown(KeyStateManager.B)) {
+
+        if (KeyStateManager.isDown(Key.B)) {
             this.powerupStateManager.activateStoredPowerup('B')
         }
-        
+
         // Allow a keypress of K to autokill the player. Do not allow this event to be fired more than once per second (60 frames) or when the player is at the base.
-        if(KeyStateManager.isDown(KeyStateManager.K) && this.numFramesSince.death > 60 && !this.atBase) {
+        if (KeyStateManager.isDown(Key.K) && this.numFramesSince.respawn > 60 && !this.atBase) {
             this.die();
         }
     }
 
     addToScore(amount) {
-        this.score += amount * this.scoreMultiplier;
-
-        this.updateDocumentScore();
-    }
-
-    updateDocumentScore() {
-        DocumentManager.updateScore(this.score);
+        LevelManager.updateScore(amount * this.scoreMultiplier)
+        if (LevelManager.score >= this.nextScoreValueForExtraLife) {
+            this.updateLives(1);
+            MediaManager.Audio.NewLevel.play();
+            this.nextScoreValueForExtraLife += GameConfig.POINT_INTERVAL_VALUE_FOR_EXTRA_LIFE;
+        }
     }
 
     isInvulnerable() {
-        return this.invulnerabilityActive;
+        // Player is invulnerable after spawning in the first time or respawning after death
+        return this.powerShieldActive || this.numFramesSince.respawn < GameConfig.LENGTH_OF_INVULNERABILITY_AFTER_SPAWN_IN_SECONDS * 60;
     }
 
     isTurboThrusting() {
@@ -259,16 +291,49 @@ export class PlayerShip extends InteractableGameObject {
         }
     }
 
-    updateFuel(fuelChange) {
-        this.fuel += fuelChange;
+    saveFuelSparePartAndSystemsState() {
+        this.savedFuel = this.fuel;
+        this.savedSpareParts = this.spareParts;
+        this.playerSystemsManager.saveSystemsOperatingLevels();
+    }
 
-        if (this.fuel > this.MAXIMUM_FUEL) {
+    restoreFuelSparePartAndSystemsState(playSoundsAndDisplayMessages) {
+        this.setFuel(this.savedFuel);
+        this.setSpareParts(this.savedSpareParts);
+        this.playerSystemsManager.restoreSystemsOperatingLevels();
+
+        if (playSoundsAndDisplayMessages) {
+            // The original game has it so that if you are below half fuel and you come out of power shield
+            // the low fuel message is shown and the sound is played. If you have more than half fuel, instead
+            // a message is displayed telling you that you are vulnerable.
+            if (this.fuel <= this.HALF_FUEL_REMAINING) {
+                this.displayLowFuelMessageAndPlaySound();
+            } else {
+                GameServiceManager.displayMessage("VULNERABLE", 60 * 4.5);
+            }
+        }
+    }
+
+    resetFuelSparePartAndSystemsState() {
+        this.setFuel(this.MAXIMUM_FUEL);
+        this.setSpareParts(this.MAXIMUM_SPARE_PARTS);
+        this.playerSystemsManager.resetSystems();
+    }
+
+    setFuel(newFuelValue) {
+        if (newFuelValue > this.MAXIMUM_FUEL) {
             this.fuel = this.MAXIMUM_FUEL;
-        } else if (this.fuel <= 0) {
+        } else if (newFuelValue <= 0) {
             this.fuel = 0;
+        } else {
+            this.fuel = newFuelValue;
         }
 
         this.updateDocumentFuel();
+    }
+
+    updateFuel(fuelChange) {
+        this.setFuel(this.fuel + fuelChange);
     }
 
     updateDocumentFuel() {
@@ -276,16 +341,25 @@ export class PlayerShip extends InteractableGameObject {
         DocumentManager.updateFuelBar(this.fuel / this.MAXIMUM_FUEL * 100);
     }
 
-    updateSpareParts(sparePartsChange) {
-        this.spareParts += sparePartsChange;
+    displayLowFuelMessageAndPlaySound() {
+        GameServiceManager.displayMessage("LOW FUEL", 60 * 4.5);
+        MediaManager.Audio.LowFuel.play();
+    }
 
-        if (this.spareParts > this.MAXIMUM_SPARE_PARTS) {
+    setSpareParts(newSparePartsValue) {
+        if (this.newSparePartsValue > this.MAXIMUM_SPARE_PARTS) {
             this.spareParts = this.MAXIMUM_SPARE_PARTS;
-        } else if (this.spareParts < 0) {
+        } else if (this.newSparePartsValue < 0) {
             this.spareParts = 0;
+        } else {
+            this.spareParts = newSparePartsValue;
         }
 
         this.updateDocumentSpareParts();
+    }
+
+    updateSpareParts(sparePartsChange) {
+        this.setSpareParts(this.spareParts + sparePartsChange);
     }
 
     updateDocumentSpareParts() {
@@ -323,11 +397,11 @@ export class PlayerShip extends InteractableGameObject {
             if (!this.isTurboThrusting() || otherObject.layer === Layer.ASTEROID || otherObject.layer === Layer.ENEMY_BASE) {
                 // Hitting other objects (besides asteroids and the enemy base) only changes your direction and speed if you are not turbo thrusting
                 super.handleCollision(otherObject);
-            }	
+            }
             this.playCollisionSound(otherObject);
             if (!this.isInvulnerable()) {
                 this.damageShip(otherObject.damageCausedByCollision);
-            }		
+            }
         } else if (otherObject.layer === Layer.PLAYER_BASE && !this.isTurboThrusting()) {
             // FUTURE TODO: Revisit ship being pulled into base, possible using gameplay footage to make it more accurate
             this.atBase = true;
@@ -337,10 +411,10 @@ export class PlayerShip extends InteractableGameObject {
             let baseY = otherObject.y - this.BASE_DOCKING_OFFSET; // Subtract the docking offset here so that the player ship is centered better on the player base when docked
             // There will be rounding error with the program, so don't check that the 
             // values are equal but rather that they are within this threshold
-            let threshold = .5; 
+            let threshold = .5;
             if (this.velocityX == 0 && this.velocityY == 0 && Math.abs(baseX - this.x) < threshold && Math.abs(baseY - this.y) < threshold) {
                 //The player ship is stopped at the base
-                
+
                 if (this.numFramesSince.repair >= 60 && (!this.playerSystemsManager.isShipAtFullOpeartingCapacity() || this.fuel < this.MAXIMUM_FUEL || this.spareParts < this.MAXIMUM_SPARE_PARTS)) {
                     //Repair ship
                     this.numFramesSince.repair = 0;
@@ -357,7 +431,7 @@ export class PlayerShip extends InteractableGameObject {
                 }
             } else if (!this.isAccelerating && (Math.abs(baseX - this.x) > threshold || Math.abs(baseY - this.y) > threshold)) {
                 // Only pull the ship in if it is not accelerating
-                
+
                 let vectorToBase = new Vector(baseX - this.x, baseY - this.y);
                 let playerShipVelocity = new Vector(this.velocityX, this.velocityY);
                 let velocityChange = playerShipVelocity.add(vectorToBase).scale(0.001);
@@ -366,10 +440,10 @@ export class PlayerShip extends InteractableGameObject {
                     // Change the magnitude to the minimum magnitude
                     velocityChange = velocityChange.scale(minimumVelocityChangeMagnitude / velocityChange.magnitude());
                 }
-                
+
                 //let dampeningFactor = Math.sqrt(playerShipVelocity.Magnitude()/this.MaxSpeed)*0.09+.9;
-                let dampeningFactor = playerShipVelocity.magnitude()/PlayerShip.MAX_SPEED*0.09+.9;
-                
+                let dampeningFactor = playerShipVelocity.magnitude() / PlayerShip.MAX_SPEED * 0.09 + .9;
+
                 let mag = playerShipVelocity.magnitude();
                 if (mag < .5) {
                     dampeningFactor = .90;
@@ -384,7 +458,7 @@ export class PlayerShip extends InteractableGameObject {
                 } else {
                     dampeningFactor = .99;
                 }
-                
+
                 let minimumDampening = .9;
                 if (dampeningFactor < minimumDampening) {
                     dampeningFactor = minimumDampening;
@@ -394,8 +468,8 @@ export class PlayerShip extends InteractableGameObject {
                 this.velocityY += velocityChange.y;
                 this.velocityY *= dampeningFactor;
             } else if (!this.isAccelerating && this.velocityX != 0 && this.velocityY != 0) {
-                this.velocityX = this.velocityX/4;
-                this.velocityY = this.velocityY/4;
+                this.velocityX = this.velocityX / 4;
+                this.velocityY = this.velocityY / 4;
                 if (this.velocityX < 0.000001 && this.velocityY < 0.00001) {
                     this.velocityX = 0;
                     this.velocityY = 0;
@@ -413,33 +487,38 @@ export class PlayerShip extends InteractableGameObject {
         this.velocityY = 0;
         this.angle = Math.PI / 2;
         this.spriteXOffset = 0;
+        // Specifically set number of frames since death here, want to reset that now not at respawn
+        this.numFramesSince.death = 0;
+        this.isDead = true;
+        this.percentVisible = 0;
 
         this.updateLives(-1);
+    }
 
+    respawnOrEndGame() {
         if (this.lives <= 0) {
             GameServiceManager.endGame();
         } else {
             if (this.lives === 1) {
-                GameServiceManager.displayMessage("1 life left", 60 * 5)
+                GameServiceManager.displayMessage("1 LIFE LEFT", 60 * 5)
             } else {
-                GameServiceManager.displayMessage(this.lives + " lives left", 60 * 5)
+                GameServiceManager.displayMessage(this.lives + " LIVES LEFT", 60 * 5)
             }
             GameServiceManager.movePlayerShipTo(Math.random() * (GameBound.RIGHT - GameBound.LEFT + 1) + GameBound.LEFT, Math.random() * (GameBound.BOTTOM - GameBound.TOP + 1) + GameBound.TOP);
 
+            // deactivate all active powerups
+            this.powerupStateManager.deactivateAndRemoveAllPowerups();
+            // restore player shooting speed
+            this.bulletShootingSpeed = GameConfig.DEFAULT_SHOOTING_SPEED;
+
             // reset ship systems and fuel and spare parts to full
             this.log("Setting ship back to max system operating percentages/fuel/spare parts");
-            this.playerSystemsManager.resetSystems();
-            this.updateFuel(this.MAXIMUM_FUEL);
-            this.updateSpareParts(this.MAXIMUM_SPARE_PARTS);
-
-            // deactivate all active powerups
-            this.powerupStateManager.deactivateAllActivePowerups();
-
-            // NOTE: You do not gain any stored powerups when you die (nor do you lose the ones you had)
+            this.resetFuelSparePartAndSystemsState();
 
             // reset all number of frames values
             for (let i in this.numFramesSince) {
-                if (this.numFramesSince.hasOwnProperty(i)) {
+                if (this.numFramesSince.hasOwnProperty(i) && i != "death") {
+                    // Specifically do not want to reset the death frames here
                     this.numFramesSince[i] = 0;
                 }
             }
@@ -447,36 +526,63 @@ export class PlayerShip extends InteractableGameObject {
             // reset system functioning booleans
             this.enginesFunctioning = true;
             this.turnJetsFunctioning = true;
+
+            // Set ship back to 0 percent visible for fading in on new respawn
+            this.percentVisible = 0;
+
+            this.isDead = false;
         }
     }
 
     updateState() {
-        // update the power up state
-        this.powerupStateManager.updatePowerupState();
+        if (this.isDead) {
+            if (this.numFramesSince.death > 60 * GameConfig.RESPAWN_DELAY_IN_SECONDS) {
+                this.respawnOrEndGame();
+            }
+        } else {
+            if (this.percentVisible < 100) {
+                const newPercentageVisible = this.numFramesSince.respawn / (60 * GameConfig.LENGTH_OF_FADE_IN_AFTER_SPAWN_IN_SECONDS) * 100;
+                if (newPercentageVisible > 100) {
+                    this.percentVisible = 100;
+                } else {
+                    this.percentVisible = newPercentageVisible;
+                }
+            }
 
-        // Handle playing the initial low fuel sound
-        if (this.fuel < this.FUEL_SOUND_THRESHOLD && !this.isLowFuel) {
-            GameServiceManager.displayMessage("LOW FUEL", 60 * 5)
-            MediaManager.Audio.LowFuel.play();
-            this.isLowFuel = true;
-        } else if (this.fuel > this.FUEL_SOUND_THRESHOLD && this.isLowFuel) {
-            this.isLowFuel = false;
-        }
+            // update the power up state
+            this.powerupStateManager.updatePowerupState();
 
-        // Handle healing from spare parts if not at player base
-        if (!this.atBase && !this.playerSystemsManager.isShipAtFullOpeartingCapacity() && this.spareParts > 0 && this.numFramesSince.healFromSparePart > 30 && this.numFramesSince.takenDamage > 120) {
-            this.numFramesSince.healFromSparePart = 0;
-            this.updateSpareParts(-1);
-            this.repairShip(2);
+            // Handle fuel sounds
+            if (this.fuel <= this.HALF_FUEL_REMAINING && !this.isLowFuelHalfLeft) {
+                this.displayLowFuelMessageAndPlaySound();
+                this.isLowFuelHalfLeft = true;
+            } else if (this.fuel > this.HALF_FUEL_REMAINING && this.isLowFuelHalfLeft) {
+                this.isLowFuelHalfLeft = false;
+            }
 
-            // NOTE: Based on gameplay footage no sound is played when spare parts are used to fix the ship
-        }
 
-        // Do this after the healing from spare parts so that if the player is at home base spare parts are not used
-        if (this.atBase) {
-            // remove the at base indicator so that if we have left the base it goes away
-            // Used when determing is the Kill hotkey should work or if the player should be allowed to fire bullets and use spare parts (not allowed when at base)
-            this.atBase = false;
+            if (this.fuel < this.QUARTER_FUEL_REMAINING && !this.isLowFuelQuarterLeft) {
+                this.displayLowFuelMessageAndPlaySound();
+                this.isLowFuelQuarterLeft = true;
+            } else if (this.fuel > this.QUARTER_FUEL_REMAINING && this.isLowFuelQuarterLeft) {
+                this.isLowFuelQuarterLeft = false;
+            }
+
+            // Handle healing from spare parts if not at player base
+            if (!this.atBase && !this.playerSystemsManager.isShipAtFullOpeartingCapacity() && this.spareParts > 0 && this.numFramesSince.healFromSparePart > 30 && this.numFramesSince.takenDamage > 120) {
+                this.numFramesSince.healFromSparePart = 0;
+                this.updateSpareParts(-1);
+                this.repairShip(2);
+
+                // NOTE: Based on gameplay footage no sound is played when spare parts are used to fix the ship
+            }
+
+            // Do this after the healing from spare parts so that if the player is at home base spare parts are not used
+            if (this.atBase) {
+                // remove the at base indicator so that if we have left the base it goes away
+                // Used when determing is the Kill hotkey should work or if the player should be allowed to fire bullets and use spare parts (not allowed when at base)
+                this.atBase = false;
+            }
         }
     }
 }

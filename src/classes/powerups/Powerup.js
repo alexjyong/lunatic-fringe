@@ -1,4 +1,5 @@
 import { InteractableGameObject } from "../InteractableGameObject.js";
+import { GameManager } from "../managers/GameManager.js";
 import { MediaManager } from "../managers/MediaManager.js";
 import { ObjectManager } from "../managers/ObjectManager.js";
 
@@ -21,13 +22,19 @@ export class Powerup extends InteractableGameObject {
         this.log(this.getClassName() + " obtained by " + otherObject.getClassName());
         this.playPowerupGainedSound();
         ObjectManager.removeObject(this);
+        // When a powerup is gained, a new powerup should spawn. See https://www.youtube.com/watch?v=zZglGbYGRtI at 29:50
+        GameManager.spawnRandomPowerup();
     }
 
     updateState() {
         // Do nothing as powerups have no state to update
     }
 
-    activate() {
+    activate(playerShip) {
         this.error("The activate function should be overwritten by concrete subclasses!");
+    }
+
+    deactivate(playerShip, playSoundsAndDisplayMessages) {
+        this.error("The deactivate function should be overwritten by concrete subclasses!");
     }
 }
