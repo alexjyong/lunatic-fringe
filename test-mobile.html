@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mobile Controls Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #222;
+            color: white;
+        }
+        
+        #test-area {
+            width: 100%;
+            height: 200px;
+            background: #333;
+            border: 2px solid #666;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #controls-info {
+            background: #444;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .status {
+            margin: 5px 0;
+            padding: 5px;
+            background: #555;
+            border-radius: 3px;
+        }
+        
+        .active {
+            background: #0a5 !important;
+        }
+        
+        /* Import the gamepad styles */
+        #HudGamePad {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            pointer-events: auto;
+            display: none !important;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Show gamepad only on touch devices */
+        @media (hover: none) and (pointer: coarse) {
+            #HudGamePad {
+                display: block !important;
+            }
+        }
+        
+        /* Explicitly hide gamepad on desktop */
+        @media (hover: hover) and (pointer: fine) {
+            #HudGamePad {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Mobile Controls Test</h1>
+    
+    <div id="test-area">
+        <div>Game Area Placeholder</div>
+    </div>
+    
+    <div id="controls-info">
+        <h3>Control Status:</h3>
+        <div id="touch-detected" class="status">Touch Device: Detecting...</div>
+        <div id="gamepad-visible" class="status">Gamepad Visible: Checking...</div>
+        <div id="joystick-status" class="status">Joystick: Inactive</div>
+        <div id="button-status" class="status">Buttons: None</div>
+        <div id="haptic-status" class="status">Haptic: Unknown</div>
+    </div>
+    
+    <script>
+        // Detect touch device
+        const isTouchDevice = ('ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0);
+        document.getElementById('touch-detected').textContent = `Touch Device: ${isTouchDevice ? 'Yes' : 'No'}`;
+        document.getElementById('touch-detected').classList.toggle('active', isTouchDevice);
+        
+        // Check gamepad visibility
+        const gamepadElement = document.getElementById('HudGamePad');
+        const isGamepadVisible = gamepadElement && window.getComputedStyle(gamepadElement).display !== 'none';
+        document.getElementById('gamepad-visible').textContent = `Gamepad Visible: ${isGamepadVisible ? 'Yes' : 'No'}`;
+        document.getElementById('gamepad-visible').classList.toggle('active', isGamepadVisible);
+        
+        // Check haptic support
+        const hapticSupported = navigator.vibrate !== undefined;
+        document.getElementById('haptic-status').textContent = `Haptic: ${hapticSupported ? 'Supported' : 'Not Supported'}`;
+        document.getElementById('haptic-status').classList.toggle('active', hapticSupported);
+        
+        // Test haptic feedback
+        if (hapticSupported) {
+            setTimeout(() => {
+                navigator.vibrate(100);
+                console.log('Haptic feedback test fired');
+            }, 2000);
+        }
+    </script>
+    
+    <!-- Include the gamepad library -->
+    <script src="https://unpkg.com/hud-gamepad/src/index.js"></script>
+</body>
+</html>

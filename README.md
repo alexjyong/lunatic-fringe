@@ -31,6 +31,7 @@ NOTE: With the refactor that separated out the code into multiple files, it is n
 5. Play
 
 ## Controls
+### Desktop/Keyboard Controls
 * Up Arrow key: Accelerate
 * Left Arrow key: Turn left
 * Right Arrow key: Turn right
@@ -38,6 +39,16 @@ NOTE: With the refactor that separated out the code into multiple files, it is n
 * CapsLock: Pause/Unpause
 * V: Use power shield powerup (if available)
 * B: Use turbo boost powerup (if available)
+
+### Mobile/Touch Controls
+* Virtual joystick: Turn left/right and accelerate (up)
+* Red button (A): Shoot
+* Green button (B): Accelerate
+* Blue button (X): Use power shield powerup
+* Purple button (Y): Use turbo boost powerup
+* Start button: Pause/Unpause
+
+The mobile gamepad will automatically appear on touch devices.
 
 ## Hey the original game had X!
 This is a work in progress. You are welcome to submit issues. Please search before creating a new one. For the more technically inclined fork and submit pull requests.
